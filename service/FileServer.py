@@ -32,6 +32,8 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         username, filename = "", ""
         totalDataSize=0
         active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
+        
+        metaData=[]
 
         if(self.primary==1):
             currDataSize = 0
@@ -40,7 +42,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             
             node = self.getLeastLoadedNode()
 
-            metaData=[]
             if(node==-1):
                 return fileService_pb2.ack(success=False, message="Error Saving File. No active nodes.")
 
@@ -67,6 +68,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 metaData.append([node, seqNo])
 
             db.saveMetaData(username, filename, metaData)
+            self.saveMetadataOnAllNodes(username, filename, metaData)
             return fileService_pb2.ack(success=True, message="Saved")
 
         else:
@@ -203,3 +205,31 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         node = self.shardingHandler.leastUtilizedNode()
         print("Least loaded node is :", node)
         return node
+
+    def MetaDataInfo(self, request, context):
+        print("Inside Metadatainfo")
+        fileName = request.filename
+        seqValues = request.seqValues
+        db.saveMetaDataOnOtherNodes(fileName, seqValues)
+        ack_message = "Successfully saved the metadata on " + self.serverAddress
+        return fileService_pb2.ack(success=False, message=ack_message)
+
+    def saveMetadataOnAllNodes(self, username, filename, metadata):
+        print("saveMetadataOnAllNodes")
+        active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
+        uniqueFileName = username + "_" + filename
+        for ip, channel in active_ip_channel_dict.items():
+            if(self.isChannelAlive(channel)):
+                print("Active IP", ip)
+                stub = fileService_pb2_grpc.FileserviceStub(channel)
+                print("STUB->", stub)
+                response = stub.MetaDataInfo(fileService_pb2.MetaData(filename=uniqueFileName, seqValues=str(metadata).encode('utf-8')))
+                print(response.message)
+
+    def isChannelAlive(self, channel):
+        try:
+            grpc.channel_ready_future(channel).result(timeout=1)
+        except grpc.FutureTimeoutError:
+            #print("Connection timeout. Unable to connect to port ")
+            return False
+        return True

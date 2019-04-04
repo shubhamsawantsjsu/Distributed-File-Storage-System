@@ -19,7 +19,7 @@ class ShardingHandler():
         self.active_ip_channel_dict = activeNodesChecker.getActiveChannels()
 
     def leastUtilizedNode(self):
-        #print("Inside leastUtilizedNode method")
+        print("Inside leastUtilizedNode method")
         #return "localhost:4000"
         return self.leastUtilizedNodeHelper()
     
