@@ -33,6 +33,7 @@ def getFileChunks():
     # This file is for dev purposes. Each line is one piece of the message being sent individually
     outfile = os.path.join('files', fileName)
     
+    sTime=time.time()
     with open(outfile, 'rb') as infile:
         while True:
             chunk = infile.read(CHUNK_SIZE)
@@ -40,10 +41,11 @@ def getFileChunks():
 
             # Do what you want with each chunk (in dev, write line to file)
             yield fileService_pb2.FileData(username="shubham", filename=fileName, data=chunk, seqNo=1)
+    print("Time for upload= ", time.time()-sTime)
 
 
 def downloadTheFile(stub):
-    fileName = input("Enter fileID: ")
+    fileName = input("Enter file name: ")
     data = bytes("",'utf-8')
     sTime=time.time()
     responses = stub.DownloadFile(fileService_pb2.FileInfo(username="shubham", filename=fileName))
@@ -63,10 +65,9 @@ def downloadTheFile(stub):
 
 def uploadTheFileChunks(stub):
     #fileData = getFileData()
-    sTime=time.time()
+    
     response = stub.UploadFile(getFileChunks())
-    print("Uploaded FileID=", response.message)
-    print("Time for upload= ", time.time()-sTime)
+    print("Uploaded file name -", response.message)
 
 def handleUserInputs(stub):
     print("1. Download a file.")

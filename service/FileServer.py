@@ -17,7 +17,7 @@ import hashlib
 from ShardingHandler import ShardingHandler
 from DownloadHelper import DownloadHelper
 
-UPLOAD_SHARD_SIZE = 2*1024*1024
+UPLOAD_SHARD_SIZE = 50*1024*1024
 
 class FileServer(fileService_pb2_grpc.FileserviceServicer):
     def __init__(self, primary, server_port, activeNodesChecker, shardingHandler):
@@ -106,7 +106,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             metaData = db.parseMetaData(request.username, request.filename)
             downloadHelper = DownloadHelper(self.primary, self.serverPort, self.activeNodesChecker)
             data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
-            chunk_size = 3000000
+            chunk_size = 4000000
             start, end = 0, chunk_size
             while(True):
                 chunk = data[start:end]
@@ -118,7 +118,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         else:
             key = request.username + "_" + request.filename + "_" + str(request.seqNo)
             data = db.getFileData(key)
-            chunk_size = 3000000
+            chunk_size = 4000000
             start, end = 0, chunk_size
             while(True):
                 chunk = data[start:end]

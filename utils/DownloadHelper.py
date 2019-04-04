@@ -24,8 +24,8 @@ class DownloadHelper():
         self.seqDataMap = {}
 
     def getDataFromNodes(self, username, filename, metaData):
-        print("--------------------Inside getDataFromNodes-------------")
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        print("---------------- Total number of chunks to fetch: ", len(metaData))
+        with ThreadPoolExecutor(max_workers=10) as executor:
             for meta in metaData:
                 executor.submit(self.getDataFromIndividualNode(meta, username, filename))
         print("All tasks are completed")
