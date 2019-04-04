@@ -32,7 +32,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         username, filename = "", ""
         totalDataSize=0
         active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
-
         if(self.primary==1):
             currDataSize = 0
             currDataBytes = bytes("",'utf-8')
@@ -92,7 +91,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             print("Response from uploadFile: ", response.message)
 
     def sendDataInStream(self, dataBytes, username, filename, seqNo):
-        chunk_size = 3*1024*1024
+        chunk_size = 4000000
         start, end = 0, chunk_size
         while(True):
             chunk = dataBytes[start:end]
@@ -108,14 +107,13 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         #If primary, find which node has file
         if(self.primary==1):
             metaData = db.parseMetaData(request.username, request.filename)
-
             for meta in metaData:
-                print("Meta=", meta)
+                #print("Meta=", meta)
                 node, seqNo = str(meta[0]), meta[1]
                 if(node==str(self.serverAddress)):
                     key = request.username + "_" + request.filename + "_" + str(seqNo)
                     data = db.getFileData(key)
-                    chunk_size = 3*1024*1024
+                    chunk_size = 4000000
                     start, end = 0, chunk_size
                     while(True):
                         chunk = data[start:end]
@@ -126,16 +124,15 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                     
                 else:
                     print("Fetching Data from Node {}".format(node))
-                    active_ip_channel_dict = db.getData("active_ip_channel_dict")
+                    active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
                     channel = active_ip_channel_dict[node]
-                    stub = fileService_pb2_grpc.DataTransferServiceStub(channel)
+                    stub = fileService_pb2_grpc.FileserviceStub(channel)
                     responses = stub.DownloadFile(fileService_pb2.FileInfo(username = request.username, filename = request.filename, seqNo = seqNo))
                     for response in responses:
                         yield response
-        
         #else not primary - search for file
         else:
-            key = request.username + "_" + request.filename + "_" + str(seqNo)
+            key = request.username + "_" + request.filename + "_" + str(request.seqNo)
             data = db.getFileData(key)
             chunk_size = 3*1024*1024
             start, end = 0, chunk_size
@@ -144,7 +141,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 if(len(chunk)==0): break
                 start=end
                 end += chunk_size
-                yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = seqNo)
+                yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
             
 
 
@@ -167,30 +164,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             #     responses = stub.DownloadFile(fileService_pb2.FileInfo(filename=request.filename))
             #     for response in responses:
             #         yield response
-
-
-    def getDataFromSelf(self, username, filename, seqNo):
-        print("In getDataFromSelf")
-        key = username + "_" + filename + "_" + seqNo
-        data = db.getFileData(key)
-        chunk_size = 3*1024*1024
-        start, end = 0, chunk_size
-        while(True):
-            chunk = data[start:end]
-            if(len(chunk)==0): break
-            start=end
-            end += chunk_size
-            yield fileService_pb2.FileData(username = username, filename = filename, data=chunk, seqNo = seqNo)
-        
-
-    def getDataFromNode(self, node, username, filename, seqNo):
-        print("In getDataFromNode")
-        active_ip_channel_dict = db.getData("active_ip_channel_dict")
-        channel = active_ip_channel_dict[node]
-        stub = fileService_pb2_grpc.DataTransferServiceStub(channel)
-        responses = stub.DownloadFile(fileService_pb2.FileInfo(username = username, filename = filename, seqNo = seqNo))
-        for response in responses:
-            yield response
 
     def ListFiles(self, request, context):
         print("List Files Called")

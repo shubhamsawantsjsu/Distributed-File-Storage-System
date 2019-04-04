@@ -15,7 +15,7 @@ class ActiveNodesChecker():
 
     #Read IPs from Static Text file
     def readAvailableIPAddresses(self):
-        print("Inside readAvailableIPAddresses")
+        #print("Inside readAvailableIPAddresses")
         ip_addresses=[]
         with open('iptable.txt') as f:
                 for line in f:

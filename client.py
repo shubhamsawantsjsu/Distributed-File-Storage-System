@@ -25,7 +25,7 @@ def getFileData():
 
 def getFileChunks():
      # Maximum chunk size that can be sent
-    CHUNK_SIZE=1024*1024
+    CHUNK_SIZE=4000000
 
     # Location of source image
     fileName = input("Enter filename:")
@@ -35,7 +35,6 @@ def getFileChunks():
     
     with open(outfile, 'rb') as infile:
         while True:
-            # Read 430byte chunks of the image
             chunk = infile.read(CHUNK_SIZE)
             if not chunk: break
 
@@ -46,12 +45,14 @@ def getFileChunks():
 def downloadTheFile(stub):
     fileName = input("Enter fileID: ")
     data = bytes("",'utf-8')
+    sTime=time.time()
     responses = stub.DownloadFile(fileService_pb2.FileInfo(username="shubham", filename=fileName))
     #print(responses)
     for response in responses:
         fileName = response.filename
         data += response.data
     
+    print("Time for Download = ", time.time()-sTime)
     filePath=os.path.join('downloads', fileName)
     saveFile = open(filePath, 'wb')
     saveFile.write(data)
@@ -62,8 +63,10 @@ def downloadTheFile(stub):
 
 def uploadTheFileChunks(stub):
     #fileData = getFileData()
+    sTime=time.time()
     response = stub.UploadFile(getFileChunks())
     print("Uploaded FileID=", response.message)
+    print("Time for upload= ", time.time()-sTime)
 
 def handleUserInputs(stub):
     print("1. Download a file.")
