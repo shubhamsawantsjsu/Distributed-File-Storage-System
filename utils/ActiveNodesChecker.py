@@ -5,8 +5,6 @@ import db
 import time
 import grpc
 
-
-
 class ActiveNodesChecker():
 
     def __init__(self):
