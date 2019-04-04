@@ -22,6 +22,9 @@ def saveMetaData(username, filename, metaData):
     key = username + "_" + filename
     r.set(key,str(metaData).encode('utf-8'))
 
+def saveMetaDataOnOtherNodes(uniqueFileName, dataLocations):
+    r.set(uniqueFileName,dataLocations)
+
 def parseMetaData(username, filename):
     key = username + "_" + filename
     return ast.literal_eval(r.get(key).decode('utf-8'))
