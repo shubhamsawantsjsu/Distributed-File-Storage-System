@@ -1,0 +1,155 @@
+from concurrent import futures
+
+import grpc
+import sys
+sys.path.append('./generated')
+sys.path.append('../utils')
+import db
+import fileService_pb2_grpc
+import fileService_pb2
+import heartbeat_pb2_grpc
+import heartbeat_pb2
+import time
+import yaml
+import threading
+import hashlib
+from ShardingHandler import ShardingHandler
+
+UPLOAD_SHARD_SIZE = 50*1024*1024
+
+class FileServer(fileService_pb2_grpc.FileserviceServicer):
+    def __init__(self, primary, server_port, activeNodesChecker, shardingHandler):
+        self.primary = primary
+        self.serverPort = server_port
+        self.serverAddress = "localhost:"+server_port
+        self.activeNodesChecker = activeNodesChecker
+        self.shardingHandler = shardingHandler
+    
+    def UploadFile(self, request_iterator, context):
+        print("Inside Server method ---------- UploadFile")
+        data=bytes("",'utf-8')
+        username, filename = "", ""
+        totalDataSize=0
+        active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
+
+        if(self.primary==1):
+            currDataSize = 0
+            currDataBytes = bytes("",'utf-8')
+            seqNo=1
+            
+            node = self.getLeastLoadedNode()
+
+            metaData=[]
+            if(node==-1):
+                return fileService_pb2.ack(success=False, message="Error Saving File. No active nodes.")
+
+            for request in request_iterator:
+                username, filename = request.username, request.filename
+
+                if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
+                    self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
+                    metaData.append([node, seqNo])
+                    currDataBytes = request.data
+                    currDataSize = sys.getsizeof(request.data)
+                    seqNo+=1
+                    node = self.shardingHandler.leastUtilizedNode()
+                else:
+                    currDataSize+= sys.getsizeof(request.data)
+                    currDataBytes+=request.data
+
+            if(currDataSize>0):
+                print("Sending Last remaining chunk")
+                print("CurrDataSize = ", currDataSize)
+                totalDataSize+=currDataSize
+                print("Total Data till now = ", totalDataSize)
+                self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
+                metaData.append([node, seqNo])
+
+            db.saveMetaData(username, filename, metaData)
+            return fileService_pb2.ack(success=True, message="Saved")
+
+        else:
+            print("Saving the data on my local db")
+            sequenceNumberOfChunk = 0
+            dataToBeSaved = bytes("",'utf-8')
+            for request in request_iterator:
+                username, filename, sequenceNumberOfChunk = request.username, request.filename, request.seqNo
+                dataToBeSaved+=request.data
+            key = username + "_" + filename + "_" + str(sequenceNumberOfChunk)
+            db.setData(key, dataToBeSaved)
+            return fileService_pb2.ack(success=True, message="Saved")
+
+    def sendDataToDestination(self, currDataBytes, node, username, filename, seqNo, channel):
+        if(node==self.serverAddress):
+            #print("Self node : saving the data on local db")
+            key = username + "_" + filename + "_" + str(seqNo)
+            db.setData(key, currDataBytes)
+        else:
+            print("Sending the UPLOAD_SHARD_SIZE to node :", node)
+            stub = fileService_pb2_grpc.FileserviceStub(channel)
+            response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo))
+            print("Response from uploadFile: ", response.message)
+
+    def sendDataInStream(self, dataBytes, username, filename, seqNo):
+        chunk_size = 3*1024*1024
+        start, end = 0, chunk_size
+        while(True):
+            chunk = dataBytes[start:end]
+            if(len(chunk)==0): break
+            start=end
+            end += chunk_size
+            yield fileService_pb2.FileData(username=username, filename=filename, data=chunk, seqNo=seqNo)
+
+    def DownloadFile(self, request, context):
+        print("Download File - ", request.filename)
+
+        #If primary, find which node has file
+        if(self.primary==1):
+            node = HRW_hash(request.filename)
+            print("HRW_Hash returns: ", node)
+            if(node==-1): 
+                return fileService_pb2.FileInfo(filename="Error Saving File. No active nodes.")
+            
+            if(node==self.serverAddress):
+                data = self.db.search_files({'filename' : request.filename})[0].read()
+                chunk_size = 1024*1024
+                start, end = 0, chunk_size
+                while(True):
+                    chunk = data[start:end]
+                    if(len(chunk)==0): break
+                    start=end
+                    end += chunk_size
+                    yield fileService_pb2.FileData(filename = request.filename, data=chunk)
+
+                #return fileService_pb2.FileData(filename = request.filename, data=data)
+            else:
+                active_ip_channel_dict = db.getData("active_ip_channel_dict")
+                channel = active_ip_channel_dict[node]
+                stub = fileService_pb2_grpc.DataTransferServiceStub(channel)
+                responses = stub.DownloadFile(fileService_pb2.FileInfo(filename=request.filename))
+                for response in responses:
+                    yield response
+
+        #else not primary - search for file
+        else:
+            data = self.db.search_files({'filename' : request.filename})[0].read()
+            chunk_size = 1024*1024
+            start, end = 0, chunk_size
+            while(True):
+                chunk = data[start:end]
+                if(len(chunk)==0): break
+                start=end
+                end += chunk_size
+                yield fileService_pb2.FileData(filename = request.filename, data=chunk)
+
+    def ListFiles(self, request, context):
+        print("List Files Called")
+
+        #Get files in DB and return file names
+        return fileService_pb2.FileList(lstFileNames="FILE-LIST")
+    
+    def getLeastLoadedNode(self):
+        print("Ready to enter sharding handler")
+        node = self.shardingHandler.leastUtilizedNode()
+        print("Least loaded node is :", node)
+        return node

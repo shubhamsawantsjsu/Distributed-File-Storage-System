@@ -1,0 +1,116 @@
+from concurrent import futures
+
+import sys      #pip3 install sys
+sys.path.append('./generated/proto')
+sys.path.append('./generated')
+sys.path.append('./utils')
+import grpc
+import fileService_pb2_grpc
+import fileService_pb2
+import heartbeat_pb2_grpc
+import heartbeat_pb2
+import sys
+import time
+import yaml
+import threading
+import os
+
+def getFileData():
+    #fileName = 'fileToBeUploaded.img'
+    fileName = input("Enter filename:")
+    outfile = os.path.join('files', fileName)
+    file_data = open(outfile, 'rb').read()
+    fileData = fileService_pb2.FileData(fileName=fileName, data=file_data)
+    return fileData
+
+def getFileChunks():
+     # Maximum chunk size that can be sent
+    CHUNK_SIZE=1024*1024
+
+    # Location of source image
+    fileName = input("Enter filename:")
+
+    # This file is for dev purposes. Each line is one piece of the message being sent individually
+    outfile = os.path.join('files', fileName)
+    
+    with open(outfile, 'rb') as infile:
+        while True:
+            # Read 430byte chunks of the image
+            chunk = infile.read(CHUNK_SIZE)
+            if not chunk: break
+
+            # Do what you want with each chunk (in dev, write line to file)
+            yield fileService_pb2.FileData(username="shubham", filename=fileName, data=chunk, seqNo=1)
+
+
+def saveFileData(fileName, data):
+    filePath=os.path.join('downloads', fileName)
+    saveFile = open(filePath, 'wb')
+    #saveFile.write(data.decode('utf-8'))
+    saveFile.write(data)
+    saveFile.close()
+
+def downloadTheFile(stub):
+    #fileInfo = fluffy_pb2.FileInfo(fileName='fileTobeDownloaded.img')
+    fileInfo = input("Enter fileID: ")
+    responses = stub.DownloadFile(fileService_pb2.FileInfo(fileName=fileInfo))
+    data = bytes("",'utf-8')
+    for response in responses:
+        fileName = response.fileName
+        data += response.data
+    
+    filePath=os.path.join('downloads', fileName)
+    saveFile = open(filePath, 'wb')
+    saveFile.write(data)
+    saveFile.close()
+    
+    print("File Downloaded - ", fileName)
+
+# def uploadTheFile(stub):
+#     fileData = getFileData()
+#     response = stub.UploadFile(fileData)
+#     print("Uploaded FileID=", response.fileName)
+
+def uploadTheFileChunks(stub):
+    #fileData = getFileData()
+    response = stub.UploadFile(getFileChunks())
+    print("Uploaded FileID=", response.message)
+
+def handleUserInputs(stub):
+    print("1. Download a file.")
+    print("2. Upload a file")
+    option = input("Please choose an option.")
+
+    if(option=='1'):
+        downloadTheFile(stub)
+    elif(option=='2'):
+        uploadTheFileChunks(stub)
+
+def run_client(serverAddress):
+    with grpc.insecure_channel(serverAddress) as channel:
+        try:
+            grpc.channel_ready_future(channel).result(timeout=1)
+        except grpc.FutureTimeoutError:
+            print("Connection timeout. Unable to connect to port ")
+            exit()
+        else:
+            print("Connected")
+        stub = fileService_pb2_grpc.FileserviceStub(channel)
+        print("Stub--->", stub)
+        handleUserInputs(stub)
+
+
+if __name__ == '__main__':
+    # config_dict = yaml.load(open('config.yaml'))
+    # if(len(sys.argv)<2):
+    #     print("Usage python3 server.py <<server No>>")
+    #     print("Enter one, two or Three for server No.")
+    #     exit()
+    # config_dict = config_dict[str(sys.argv[1]).lower()]
+
+    # server_port = str(config_dict['server_port'])
+    # #connection_ports = config_dict['connection_port']
+    # rest_server_port = config_dict['rest_server_port']
+    # primary = config_dict['primary']
+    # writeLog=[]
+    run_client('localhost:3000')

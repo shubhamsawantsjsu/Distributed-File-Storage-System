@@ -1,0 +1,45 @@
+//Author: Neil Shah
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package fluffy;
+
+// a service interface (contract)
+
+service DataTransferService {
+  rpc UploadFile (stream FileData) returns (FileInfo);
+  rpc DownloadFile (FileInfo) returns (stream FileData);
+  rpc ReplicateFile(stream FileData) returns (FileInfo);
+  rpc ListFiles (RequestFileList) returns (FileList);
+}
+
+message FileData {
+	string fileName = 1;
+	bytes data = 2;
+}
+
+message FileInfo {
+	string fileName = 1;		// Mongo fileID ? (unique)
+}
+
+message RequestFileList {
+  bool isClient=1;		// true then client else other team
+}
+
+message FileList {
+	repeated string lstFileNames = 1;
+}
+
+// basic message correspondence between two points. Additional metadata 
+// and routing options can be added.
+
+// message Route {
+//   int64 id = 1;
+//   int64 origin = 2;
+//   int64 destination = 3;
+//   string path = 4;
+//   bytes payload = 5;
+// }

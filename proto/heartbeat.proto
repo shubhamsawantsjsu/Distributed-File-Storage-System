@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// The heartbeat service definition.
+service HearBeat {
+  // Sends status
+  rpc isAlive (NodeInfo) returns (Stats) {}
+}
+
+// The request message containing ip address and leader status
+message NodeInfo {
+  string ip = 1;
+  string port = 2;
+}
+
+// The response message containing the status of the server
+message Stats {
+   
+  string cpu_usage = 1;
+  string disk_space = 2; 
+  string used_mem = 3;
+}

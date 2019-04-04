@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+service Fileservice {
+	
+	rpc UploadFile (stream FileData) returns (ack);
+	rpc DownloadFile (FileInfo) returns (stream FileData);
+	rpc FileSearch (FileInfo) returns (ack);
+	rpc ReplicateFile (stream FileData) returns (ack);
+	rpc FileList (UserInfo) returns (FileListResponse);
+	rpc FileDelete (FileInfo) returns (ack);
+	rpc UpdateFile (stream FileData) returns (ack);
+	rpc MetaDataInfo (MetaData) returns (ack);
+}
+
+message FileData {
+	string username = 1;
+	string filename =2;
+	bytes data =3;
+	int32 seqNo = 4;
+}
+
+message MetaData {
+	string filename = 1;
+	bytes seqValues = 2;
+}
+
+message ack {
+	bool success =1;
+	string message = 2;
+}
+
+message UserInfo {
+	string username=1;
+}
+
+message FileInfo {
+	string username = 1;
+	string filename = 2;
+}
+
+message FileListResponse {
+	string Filenames =1;
+}
