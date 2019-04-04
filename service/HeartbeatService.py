@@ -2,7 +2,7 @@ from __future__ import print_function
 import psutil
 import grpc
 import sys
-sys.path.append('./generated')
+sys.path.append('../generated')
 import heartbeat_pb2
 import heartbeat_pb2_grpc
 

@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./generated')
+sys.path.append('../generated')
 sys.path.append('../utils')
 import db
 import time

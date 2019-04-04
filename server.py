@@ -1,10 +1,10 @@
 from concurrent import futures
 import grpc
 import sys      #pip3 install sys
-sys.path.append('./generated/proto')
 sys.path.append('./generated')
 sys.path.append('./utils')
 sys.path.append('./service')
+sys.path.append('./proto')
 import db
 import fileService_pb2_grpc
 import fileService_pb2

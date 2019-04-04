@@ -1,8 +1,8 @@
 from concurrent import futures
 
 import sys      #pip3 install sys
-sys.path.append('./generated/proto')
 sys.path.append('./generated')
+sys.path.append('./proto')
 sys.path.append('./utils')
 import grpc
 import fileService_pb2_grpc
@@ -43,20 +43,13 @@ def getFileChunks():
             yield fileService_pb2.FileData(username="shubham", filename=fileName, data=chunk, seqNo=1)
 
 
-def saveFileData(fileName, data):
-    filePath=os.path.join('downloads', fileName)
-    saveFile = open(filePath, 'wb')
-    #saveFile.write(data.decode('utf-8'))
-    saveFile.write(data)
-    saveFile.close()
-
 def downloadTheFile(stub):
-    #fileInfo = fluffy_pb2.FileInfo(fileName='fileTobeDownloaded.img')
-    fileInfo = input("Enter fileID: ")
-    responses = stub.DownloadFile(fileService_pb2.FileInfo(fileName=fileInfo))
+    fileName = input("Enter fileID: ")
     data = bytes("",'utf-8')
+    responses = stub.DownloadFile(fileService_pb2.FileInfo(username="shubham", filename=fileName))
+    #print(responses)
     for response in responses:
-        fileName = response.fileName
+        fileName = response.filename
         data += response.data
     
     filePath=os.path.join('downloads', fileName)
@@ -66,10 +59,6 @@ def downloadTheFile(stub):
     
     print("File Downloaded - ", fileName)
 
-# def uploadTheFile(stub):
-#     fileData = getFileData()
-#     response = stub.UploadFile(fileData)
-#     print("Uploaded FileID=", response.fileName)
 
 def uploadTheFileChunks(stub):
     #fileData = getFileData()

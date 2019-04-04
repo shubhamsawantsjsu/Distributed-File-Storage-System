@@ -1,4 +1,5 @@
 import redis
+import ast
 
 _redis_port = 6379
 
@@ -13,20 +14,17 @@ def getData(key):
 def get(key):
     return (r.get(key))
 
+def getFileData(key):
+    return r.get(key)
+    
 #metadata -> node, seq
 def saveMetaData(username, filename, metaData):
     key = username + "_" + filename
-    val = ""
     r.set(key,str(metaData).encode('utf-8'))
-    # for data in metaData:
-    #     temp = ""
-    #     for item in data:   # node and seq
-    #         temp+=str(item)+","
-    #     temp = temp[:-1]
-    #     val+= temp+"_"
-    # val = val[:-1]
-    # print(val)
-    #r.set(key, val)
+
+def parseMetaData(username, filename):
+    key = username + "_" + filename
+    return ast.literal_eval(r.get(key).decode('utf-8'))
 
 def saveList(key, value):
     r.rpush(key, value)
