@@ -146,28 +146,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 start=end
                 end += chunk_size
                 yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
-            
-
-
-            # if(node==self.serverAddress):
-            #     data = self.db.search_files({'filename' : request.filename})[0].read()
-            #     chunk_size = 1024*1024
-            #     start, end = 0, chunk_size
-            #     while(True):
-            #         chunk = data[start:end]
-            #         if(len(chunk)==0): break
-            #         start=end
-            #         end += chunk_size
-            #         yield fileService_pb2.FileData(filename = request.filename, data=chunk)
-
-            #     #return fileService_pb2.FileData(filename = request.filename, data=data)
-            # else:
-            #     active_ip_channel_dict = db.getData("active_ip_channel_dict")
-            #     channel = active_ip_channel_dict[node]
-            #     stub = fileService_pb2_grpc.DataTransferServiceStub(channel)
-            #     responses = stub.DownloadFile(fileService_pb2.FileInfo(filename=request.filename))
-            #     for response in responses:
-            #         yield response
 
     def ListFiles(self, request, context):
         print("List Files Called")
