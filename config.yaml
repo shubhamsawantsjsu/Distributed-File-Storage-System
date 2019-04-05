@@ -23,6 +23,8 @@ three:
 four:
  hostname: 192.168.0.2
  server_port : 3000
+ raft_port : 3001
+ #connection_port : [4001, 5001]
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
 
