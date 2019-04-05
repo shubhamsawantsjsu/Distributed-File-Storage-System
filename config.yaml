@@ -30,9 +30,26 @@ three:
  mongodb_url: "mongodb://localhost:27017"
 
 four:
- hostname: localhost
+ hostname: 192.168.0.2
+ rest_server_port: 3001
+ server_port : 3000
+ #connection_port : [4001, 5001]
+ primary : 1
+ mongodb_url: "mongodb://localhost:27017"
+
+five:
+ hostname: 192.168.0.5
+ rest_server_port: 4001
+ server_port : 3000
+ #connection_port : [3001, 5001]
+ primary : 0
+ mongodb_url: "mongodb://localhost:27017"
+
+
+six:
+ hostname: 192.168.0.6
  rest_server_port: 5001
- server_port : 2345
+ server_port : 3000
  #connection_port : [4001, 3001]
  primary : 0
  mongodb_url: "mongodb://localhost:27017"

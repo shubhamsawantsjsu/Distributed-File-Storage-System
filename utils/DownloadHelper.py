@@ -18,9 +18,9 @@ import concurrent.futures
 
 class DownloadHelper():
 
-    def __init__(self, primary, server_port, activeNodesChecker):
+    def __init__(self, primary, hostname, server_port, activeNodesChecker):
         self.active_ip_channel_dict = activeNodesChecker.getActiveChannels()
-        self.serverAddress = "localhost:"+server_port
+        self.serverAddress = hostname+":"+server_port
         self.primary = primary
         self.seqDataMap = {}
 

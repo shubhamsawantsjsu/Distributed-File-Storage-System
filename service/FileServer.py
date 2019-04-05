@@ -20,13 +20,14 @@ from DownloadHelper import DownloadHelper
 UPLOAD_SHARD_SIZE = 50*1024*1024
 
 class FileServer(fileService_pb2_grpc.FileserviceServicer):
-    def __init__(self, primary, server_port, activeNodesChecker, shardingHandler):
+    def __init__(self, primary, hostname, server_port, activeNodesChecker, shardingHandler):
         self.primary = primary
         self.serverPort = server_port
-        self.serverAddress = "localhost:"+server_port
+        self.serverAddress = hostname+":"+server_port
         self.activeNodesChecker = activeNodesChecker
         self.shardingHandler = shardingHandler
-    
+        self.hostname = hostname
+        
     def UploadFile(self, request_iterator, context):
         print("Inside Server method ---------- UploadFile")
         data=bytes("",'utf-8')
@@ -112,7 +113,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
         if(self.primary==1):
             metaData = db.parseMetaData(request.username, request.filename)
-            downloadHelper = DownloadHelper(self.primary, self.serverPort, self.activeNodesChecker)
+            downloadHelper = DownloadHelper(self.primary, self.hostname, self.serverPort, self.activeNodesChecker)
             data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
             print("Sending the data to client")
             chunk_size = 4000000
