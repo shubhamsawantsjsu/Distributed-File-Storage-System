@@ -6,11 +6,10 @@ from functools import partial
 sys.path.append("../")
 from pysyncobj import SyncObj, replicated
 
-
-class TestObj(SyncObj):
+class Raft(SyncObj):
 
     def __init__(self, selfNodeAddr, otherNodeAddrs):
-        super(TestObj, self).__init__(selfNodeAddr, otherNodeAddrs)
+        super(Raft, self).__init__(selfNodeAddr, otherNodeAddrs)
         self.__counter = 0
 
     @replicated

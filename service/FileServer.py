@@ -27,7 +27,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         self.activeNodesChecker = activeNodesChecker
         self.shardingHandler = shardingHandler
         self.hostname = hostname
-        
+
     def UploadFile(self, request_iterator, context):
         print("Inside Server method ---------- UploadFile")
         data=bytes("",'utf-8')
@@ -57,6 +57,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             currDataSize+= sys.getsizeof(request.data)
             currDataBytes+=request.data
             
+            print("Came here")
             for request in request_iterator:
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
                     self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])

@@ -110,4 +110,4 @@ if __name__ == '__main__':
     # rest_server_port = config_dict['rest_server_port']
     # primary = config_dict['primary']
     # writeLog=[]
-    run_client('localhost:3000')
+    run_client('192.168.0.6:3000')
