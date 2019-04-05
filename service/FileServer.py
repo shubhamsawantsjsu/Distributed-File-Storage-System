@@ -38,7 +38,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         totalDataSize=0
         active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
 
-        metaData=[]
+        metaData, nodeData=[]
 
         if(self.primary==1):
 
@@ -46,7 +46,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             currDataBytes = bytes("",'utf-8')
             seqNo=1
             
-            node = self.getLeastLoadedNode()
+            node, node_replica = self.getLeastLoadedNode()
 
             if(node==-1):
                 return fileService_pb2.ack(success=False, message="Error Saving File. No active nodes.")
@@ -60,23 +60,22 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             currDataSize+= sys.getsizeof(request.data)
             currDataBytes+=request.data
 
-            print("Came here")
             for request in request_iterator:
 
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
-                    self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
-                    metaData.append([node, seqNo])
+                    self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
+                    metaData.append([node, seqNo, node_replica])
                     currDataBytes = request.data
                     currDataSize = sys.getsizeof(request.data)
                     seqNo+=1
-                    node = self.shardingHandler.leastUtilizedNode()
+                    node, node_replica = self.getLeastLoadedNode()
                 else:
                     currDataSize+= sys.getsizeof(request.data)
                     currDataBytes+=request.data
 
             if(currDataSize>0):
-                self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
-                metaData.append([node, seqNo])
+                self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
+                metaData.append([node, seqNo, node_replica])
 
             db.saveMetaData(username, filename, metaData)
             self.saveMetadataOnAllNodes(username, filename, metaData)
@@ -91,20 +90,33 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 dataToBeSaved+=request.data
             key = username + "_" + filename + "_" + str(sequenceNumberOfChunk)
             db.setData(key, dataToBeSaved)
+
+            if(request.replicaNode!=""):
+                print("Sending replication to ", request.replicaNode)
+                replica_channel = active_ip_channel_dict[request.replicaNode]
+                stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
+                response = stub.UploadFile(self.sendDataInStream(dataToBeSaved, username, filename, sequenceNumberOfChunk, ""))
+
             return fileService_pb2.ack(success=True, message="Saved")
 
-    def sendDataToDestination(self, currDataBytes, node, username, filename, seqNo, channel):
+    def sendDataToDestination(self, currDataBytes, node, nodeReplica, username, filename, seqNo, channel):
         if(node==self.serverAddress):
             #print("Self node : saving the data on local db")
             key = username + "_" + filename + "_" + str(seqNo)
             db.setData(key, currDataBytes)
+            if(nodeReplica!=""):
+                print("Sending replication to ", nodeReplica)
+                active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
+                replica_channel = active_ip_channel_dict[nodeReplica]
+                stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
+                response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo, ""))
         else:
             print("Sending the UPLOAD_SHARD_SIZE to node :", node)
             stub = fileService_pb2_grpc.FileserviceStub(channel)
-            response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo))
+            response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo, nodeReplica))
             print("Response from uploadFile: ", response.message)
 
-    def sendDataInStream(self, dataBytes, username, filename, seqNo):
+    def sendDataInStream(self, dataBytes, username, filename, seqNo, replicaNode):
         chunk_size = 4000000
         start, end = 0, chunk_size
         while(True):
@@ -112,7 +124,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             if(len(chunk)==0): break
             start=end
             end += chunk_size
-            yield fileService_pb2.FileData(username=username, filename=filename, data=chunk, seqNo=seqNo)
+            yield fileService_pb2.FileData(username=username, filename=filename, data=chunk, seqNo=seqNo, replicaNode=replicaNode)
 
     def DownloadFile(self, request, context):
 
@@ -169,9 +181,10 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
     
     def getLeastLoadedNode(self):
         print("Ready to enter sharding handler")
-        node = self.shardingHandler.leastUtilizedNode()
+        node, node_replica = self.shardingHandler.leastUtilizedNode()
         print("Least loaded node is :", node)
-        return node
+        print("Replica node - ", node_replica)
+        return node, node_replica
 
     def MetaDataInfo(self, request, context):
         print("Inside Metadatainfo")

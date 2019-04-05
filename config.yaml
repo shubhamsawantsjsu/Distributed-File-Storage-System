@@ -6,12 +6,14 @@ one:
  server_port : 3000
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 3001
 
 two:
  hostname: localhost
  server_port : 4000
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 4001
 
 
 three:
@@ -19,18 +21,21 @@ three:
  server_port : 5000
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 5001
 
 four:
  hostname: 192.168.0.2
  server_port : 3000
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 3001
 
 five:
  hostname: 192.168.0.5
  server_port : 3000
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 3001
 
 
 six:
@@ -38,6 +43,7 @@ six:
  server_port : 3000
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
+ raft_port: 3001
 
 LRUCapacity: 5
 

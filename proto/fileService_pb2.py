@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto/fileService.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x17proto/fileService.proto\"K\n\x08\x46ileData\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x12\r\n\x05seqNo\x18\x04 \x01(\x05\"/\n\x08MetaData\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tseqValues\x18\x02 \x01(\x0c\"\'\n\x03\x61\x63k\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1c\n\x08UserInfo\x12\x10\n\x08username\x18\x01 \x01(\t\"=\n\x08\x46ileInfo\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\r\n\x05seqNo\x18\x03 \x01(\x05\"%\n\x10\x46ileListResponse\x12\x11\n\tFilenames\x18\x01 \x01(\t2\xa4\x02\n\x0b\x46ileservice\x12\x1f\n\nUploadFile\x12\t.FileData\x1a\x04.ack(\x01\x12&\n\x0c\x44ownloadFile\x12\t.FileInfo\x1a\t.FileData0\x01\x12\x1d\n\nFileSearch\x12\t.FileInfo\x1a\x04.ack\x12\"\n\rReplicateFile\x12\t.FileData\x1a\x04.ack(\x01\x12(\n\x08\x46ileList\x12\t.UserInfo\x1a\x11.FileListResponse\x12\x1d\n\nFileDelete\x12\t.FileInfo\x1a\x04.ack\x12\x1f\n\nUpdateFile\x12\t.FileData\x1a\x04.ack(\x01\x12\x1f\n\x0cMetaDataInfo\x12\t.MetaData\x1a\x04.ackb\x06proto3')
+  serialized_pb=_b('\n\x17proto/fileService.proto\"`\n\x08\x46ileData\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x12\r\n\x05seqNo\x18\x04 \x01(\x05\x12\x13\n\x0breplicaNode\x18\x05 \x01(\t\"/\n\x08MetaData\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tseqValues\x18\x02 \x01(\x0c\"\'\n\x03\x61\x63k\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1c\n\x08UserInfo\x12\x10\n\x08username\x18\x01 \x01(\t\"=\n\x08\x46ileInfo\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\r\n\x05seqNo\x18\x03 \x01(\x05\"%\n\x10\x46ileListResponse\x12\x11\n\tFilenames\x18\x01 \x01(\t2\xa4\x02\n\x0b\x46ileservice\x12\x1f\n\nUploadFile\x12\t.FileData\x1a\x04.ack(\x01\x12&\n\x0c\x44ownloadFile\x12\t.FileInfo\x1a\t.FileData0\x01\x12\x1d\n\nFileSearch\x12\t.FileInfo\x1a\x04.ack\x12\"\n\rReplicateFile\x12\t.FileData\x1a\x04.ack(\x01\x12(\n\x08\x46ileList\x12\t.UserInfo\x1a\x11.FileListResponse\x12\x1d\n\nFileDelete\x12\t.FileInfo\x1a\x04.ack\x12\x1f\n\nUpdateFile\x12\t.FileData\x1a\x04.ack(\x01\x12\x1f\n\x0cMetaDataInfo\x12\t.MetaData\x1a\x04.ackb\x06proto3')
 )
 
 
@@ -60,6 +60,13 @@ _FILEDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='replicaNode', full_name='FileData.replicaNode', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -73,7 +80,7 @@ _FILEDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=27,
-  serialized_end=102,
+  serialized_end=123,
 )
 
 
@@ -110,8 +117,8 @@ _METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=104,
-  serialized_end=151,
+  serialized_start=125,
+  serialized_end=172,
 )
 
 
@@ -148,8 +155,8 @@ _ACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=153,
-  serialized_end=192,
+  serialized_start=174,
+  serialized_end=213,
 )
 
 
@@ -179,8 +186,8 @@ _USERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=194,
-  serialized_end=222,
+  serialized_start=215,
+  serialized_end=243,
 )
 
 
@@ -224,8 +231,8 @@ _FILEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=224,
-  serialized_end=285,
+  serialized_start=245,
+  serialized_end=306,
 )
 
 
@@ -255,8 +262,8 @@ _FILELISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=287,
-  serialized_end=324,
+  serialized_start=308,
+  serialized_end=345,
 )
 
 DESCRIPTOR.message_types_by_name['FileData'] = _FILEDATA
@@ -317,8 +324,8 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=327,
-  serialized_end=619,
+  serialized_start=348,
+  serialized_end=640,
   methods=[
   _descriptor.MethodDescriptor(
     name='UploadFile',

@@ -17,6 +17,7 @@ message FileData {
 	string filename =2;
 	bytes data =3;
 	int32 seqNo = 4;
+	string replicaNode = 5;
 }
 
 message MetaData {

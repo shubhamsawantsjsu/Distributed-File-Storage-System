@@ -24,19 +24,25 @@ class ShardingHandler():
         return self.leastUtilizedNodeHelper()
     
     def leastUtilizedNodeHelper(self):
-        minVal = 301.00
-        leastLoadedNode = ""
+        minVal, minVal2 = 301.00, 301.00
+        leastLoadedNode, leastLoadedNode2 = "",""
         for ip, channel in self.active_ip_channel_dict.items():
             if(self.isChannelAlive(channel)):
                 stub = heartbeat_pb2_grpc.HearBeatStub(channel)
                 stats = stub.isAlive(heartbeat_pb2.NodeInfo(ip="", port=""))
                 total = float(stats.cpu_usage) + float(stats.disk_space) + float(stats.used_mem)
                 if ((total/3)<minVal):
-                    minVal = total/3
-                    leastLoadedNode = ip
+                   minVal2 = minVal
+                   minVal = total/3
+                   leastLoadedNode2 = leastLoadedNode
+                   leastLoadedNode = ip
+                elif((total/3)<minVal2):
+                   minVal2 = total/3
+                   leastLoadedNode2 = ip
+
         if(leastLoadedNode==""):
             return -1
-        return leastLoadedNode
+        return leastLoadedNode, leastLoadedNode2
 
     def isChannelAlive(self, channel):
         try:

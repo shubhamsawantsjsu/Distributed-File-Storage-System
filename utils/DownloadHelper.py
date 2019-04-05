@@ -40,7 +40,7 @@ class DownloadHelper():
     def getDataFromIndividualNode(self, meta, username, filename):
         print("Inside getDataFromIndividualNode")
         print("Task Executed {}".format(threading.current_thread()))
-        node, seqNo = str(meta[0]), meta[1]
+        node, seqNo, replicaNode = str(meta[0]), meta[1], str(meta[2])
 
         data = bytes("",'utf-8')
         result = {}
@@ -49,8 +49,16 @@ class DownloadHelper():
             key = username + "_" + filename + "_" + str(seqNo)
             data = db.getFileData(key)
         else:
-            print("Fetching Data from Node {}".format(node))
-            channel = self.active_ip_channel_dict[node]
+            if(node in self.active_ip_channel_dict): 
+                channel = self.active_ip_channel_dict[node]
+                print("Fetching Data from Node {}".format(node))
+            elif(replicaNode in self.active_ip_channel_dict):
+                channel = self.active_ip_channel_dict[replicaNode]
+                print("Fetching Data from Node {}".format(replicaNode))
+            else:
+                print("Both original and replica nodes are down!")
+                return
+
             stub = fileService_pb2_grpc.FileserviceStub(channel)
             responses = stub.DownloadFile(fileService_pb2.FileInfo(username = username, filename = filename, seqNo = seqNo))
             for response in responses:
