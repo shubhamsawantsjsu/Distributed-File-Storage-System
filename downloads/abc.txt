@@ -1,1 +1,0 @@
-Neighbor                Linklayer Address Expire(O) Expire(I)    Netif Refs Prbs

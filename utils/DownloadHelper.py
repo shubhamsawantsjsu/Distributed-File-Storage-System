@@ -14,6 +14,7 @@ import time
 import yaml
 import threading
 import hashlib
+import concurrent.futures
 
 class DownloadHelper():
 
@@ -24,14 +25,21 @@ class DownloadHelper():
         self.seqDataMap = {}
 
     def getDataFromNodes(self, username, filename, metaData):
-        print("---------------- Total number of chunks to fetch: ", len(metaData))
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            for meta in metaData:
-                executor.submit(self.getDataFromIndividualNode(meta, username, filename))
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor:
+            list_of_executors = {executor.submit(self.getDataFromIndividualNode, metas, username, filename): metas for metas in metaData}
+            for future in concurrent.futures.as_completed(list_of_executors):
+                try:
+                    future.result()
+                except Exception as exec:
+                    print(exec)
+
         print("All tasks are completed")
         return self.buildTheDataFromMap()
 
     def getDataFromIndividualNode(self, meta, username, filename):
+        print("Inside getDataFromIndividualNode")
+        print("Task Executed {}".format(threading.current_thread()))
         node, seqNo = str(meta[0]), meta[1]
 
         data = bytes("",'utf-8')
@@ -57,8 +65,5 @@ class DownloadHelper():
 
         for i in range(1, totalNumberOfChunks+1):
             fileData+=self.seqDataMap.get(i)
+        
         return fileData
-
-
-
-            

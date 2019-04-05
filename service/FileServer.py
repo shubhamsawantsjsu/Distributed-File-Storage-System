@@ -106,6 +106,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             metaData = db.parseMetaData(request.username, request.filename)
             downloadHelper = DownloadHelper(self.primary, self.serverPort, self.activeNodesChecker)
             data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
+            print("Sending the data to client")
             chunk_size = 4000000
             start, end = 0, chunk_size
             while(True):
