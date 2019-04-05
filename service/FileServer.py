@@ -37,7 +37,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         totalDataSize=0
         active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
 
-        metaData, nodeData=[]
+        metaData=[]
 
         if(int(db.get("primaryStatus"))==1):
 
