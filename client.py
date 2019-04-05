@@ -28,7 +28,8 @@ def getFileChunks():
     CHUNK_SIZE=4000000
 
     # Location of source image
-    fileName = input("Enter filename:")
+    username = input("Enter Username: ")
+    fileName = input("Enter filename: ")
 
     # This file is for dev purposes. Each line is one piece of the message being sent individually
     outfile = os.path.join('files', fileName)
@@ -40,15 +41,16 @@ def getFileChunks():
             if not chunk: break
 
             # Do what you want with each chunk (in dev, write line to file)
-            yield fileService_pb2.FileData(username="shubham", filename=fileName, data=chunk, seqNo=1)
+            yield fileService_pb2.FileData(username=username, filename=fileName, data=chunk, seqNo=1)
     print("Time for upload= ", time.time()-sTime)
 
 
 def downloadTheFile(stub):
+    userName = input("Enter Username: ")
     fileName = input("Enter file name: ")
     data = bytes("",'utf-8')
     sTime=time.time()
-    responses = stub.DownloadFile(fileService_pb2.FileInfo(username="shubham", filename=fileName))
+    responses = stub.DownloadFile(fileService_pb2.FileInfo(username=userName, filename=fileName))
     #print(responses)
     for response in responses:
         fileName = response.filename
@@ -67,7 +69,9 @@ def uploadTheFileChunks(stub):
     #fileData = getFileData()
     
     response = stub.UploadFile(getFileChunks())
-    print("Uploaded file name -", response.message)
+    if(response.success): print("File successfully Uploaded")
+    else:
+        print("Failed to upload. Message - ", response.message)
 
 def handleUserInputs(stub):
     print("1. Download a file.")
