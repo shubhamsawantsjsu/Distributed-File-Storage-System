@@ -22,8 +22,8 @@ from lru import LRU
 UPLOAD_SHARD_SIZE = 50*1024*1024
 
 class FileServer(fileService_pb2_grpc.FileserviceServicer):
-    def __init__(self, primary, hostname, server_port, activeNodesChecker, shardingHandler):
-        self.primary = primary
+    def __init__(self, hostname, server_port, activeNodesChecker, shardingHandler):
+        self.primary = int(db.get("primaryStatus"))
         self.serverPort = server_port
         self.serverAddress = hostname+":"+server_port
         self.activeNodesChecker = activeNodesChecker

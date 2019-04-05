@@ -3,14 +3,16 @@ import psutil
 import grpc
 import sys
 sys.path.append('../generated')
+sys.path.append('../utils')
 import heartbeat_pb2
 import heartbeat_pb2_grpc
+import db
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class Heartbeat(heartbeat_pb2_grpc.HearBeatServicer):
-    def __init__(self, primary):
-        self.primary = primary
+    def __init__(self):
+        self.primary = int(db.get("primaryStatus"))
 
     def isAlive(self, request, context):
         cpu_usage = str(psutil.cpu_percent())

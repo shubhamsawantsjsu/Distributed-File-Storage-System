@@ -27,8 +27,8 @@ from RaftHelper import RaftHelper
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-def run_server(hostname, server_port, primary, raft_port):
-    if(primary==1): print("This server is the current leader.")
+def run_server(hostname, server_port, raft_port):
+    if(int(db.get("primaryStatus"))==1): print("This server is the current leader.")
     print('gRPC Port:{}'.format(server_port))
    
     activeNodesChecker = ActiveNodesChecker()
@@ -37,8 +37,8 @@ def run_server(hostname, server_port, primary, raft_port):
 
     #GRPC - File Service + heartbeat service
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fileService_pb2_grpc.add_FileserviceServicer_to_server(FileServer(primary, hostname, server_port, activeNodesChecker, shardingHandler), server)
-    heartbeat_pb2_grpc.add_HearBeatServicer_to_server(HeartbeatService.Heartbeat(primary), server)
+    fileService_pb2_grpc.add_FileserviceServicer_to_server(FileServer(hostname, server_port, activeNodesChecker, shardingHandler), server)
+    heartbeat_pb2_grpc.add_HearBeatServicer_to_server(HeartbeatService.Heartbeat(), server)
     server.add_insecure_port('[::]:{}'.format(server_port))
     server.start()
 
@@ -69,6 +69,6 @@ if __name__ == '__main__':
     config_dict = config_dict[str(sys.argv[1]).lower()]
     server_host = config_dict['hostname']
     server_port = str(config_dict['server_port'])
-    primary = config_dict['primary']
+    primary = int(db.get("primaryStatus")) #config_dict['primary']
     raft_port = str(config_dict['raft_port'])
-    run_server(server_host, server_port, primary, raft_port)
+    run_server(server_host, server_port, raft_port)
