@@ -60,7 +60,7 @@ class RaftHelper():
                   print(raftInstance._getLeader())
                   #print("Current Leader running at address new:", SyncObj(raftInstance).__raftLeader())
                   #print("Current Log Size:", o._getRaftLogSize())
-                  self.updatePrimaryStatus(raftInstance._isLeader())
+                  self.updatePrimaryStatus(raftInstance._isLeader(), raftInstance)
 
    def getListOfOtherNodes(self, AllAvailableIPAddresses):
        allavailableIps = self.activeNodesChecker.getAllAvailableIPAddresses()
@@ -70,9 +70,9 @@ class RaftHelper():
            raftNodes.append(ip+":"+self.raft_port)
        return raftNodes
 
-   def updatePrimaryStatus(self, isLeader):
+   def updatePrimaryStatus(self, isLeader, raftInstance):
        isPrimary = int(db.get("primaryStatus"))
-       if (o._getLeader() is None):
+       if (raftInstance._getLeader() is None):
            db.setData("primaryStatus", 1)
        elif(isLeader and isPrimary==0):
            db.setData("primaryStatus", 1)

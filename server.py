@@ -2,7 +2,6 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
 from threading import Thread
-import asyncio
 import grpc
 import sys      #pip3 install sys
 sys.path.append('./generated')
