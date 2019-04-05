@@ -37,6 +37,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         metaData=[]
 
         if(self.primary==1):
+
             currDataSize = 0
             currDataBytes = bytes("",'utf-8')
             seqNo=1
@@ -48,7 +49,14 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
             for request in request_iterator:
                 username, filename = request.username, request.filename
-
+                if(self.fileExists(username, filename)):
+                    return fileService_pb2.ack(success=False, message="File already exists for this user.")
+                break
+            
+            currDataSize+= sys.getsizeof(request.data)
+            currDataBytes+=request.data
+            
+            for request in request_iterator:
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
                     self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
                     metaData.append([node, seqNo])
@@ -174,6 +182,9 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
         #Get files in DB and return file names
         return fileService_pb2.FileList(lstFileNames="FILE-LIST")
+    
+    def fileExists(self, username, filename):
+        return db.keyExists(username + "_" + filename)
     
     def getLeastLoadedNode(self):
         print("Ready to enter sharding handler")

@@ -16,6 +16,9 @@ def get(key):
 
 def getFileData(key):
     return r.get(key)
+
+def keyExists(key):
+    return r.exists(key)
     
 #metadata -> node, seq
 def saveMetaData(username, filename, metaData):
@@ -29,7 +32,5 @@ def parseMetaData(username, filename):
     key = username + "_" + filename
     return ast.literal_eval(r.get(key).decode('utf-8'))
 
-def saveList(key, value):
-    r.rpush(key, value)
 
 
