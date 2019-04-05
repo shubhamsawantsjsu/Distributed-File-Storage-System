@@ -47,7 +47,7 @@ def run_server(hostname, server_port, raft_port):
     t2 = Thread(target=ActiveNodesChecker.readAvailableIPAddresses, args=(activeNodesChecker,))
 
     t2.start()
-    #t1.start()
+    t1.start()
 
     print("Both threads have been started")
 
