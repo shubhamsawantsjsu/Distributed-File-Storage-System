@@ -23,7 +23,6 @@ UPLOAD_SHARD_SIZE = 50*1024*1024
 
 class FileServer(fileService_pb2_grpc.FileserviceServicer):
     def __init__(self, hostname, server_port, activeNodesChecker, shardingHandler):
-        self.primary = int(db.get("primaryStatus"))
         self.serverPort = server_port
         self.serverAddress = hostname+":"+server_port
         self.activeNodesChecker = activeNodesChecker
@@ -40,7 +39,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
         metaData=[]
 
-        if(self.primary==1):
+        if(int(db.get("primaryStatus"))==1):
 
             currDataSize = 0
             currDataBytes = bytes("",'utf-8')
@@ -116,7 +115,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
     def DownloadFile(self, request, context):
 
-        if(self.primary==1):
+        if(int(db.get("primaryStatus"))==1):
 
             if(self.lru.has_key(request.username + "_" + request.filename)):
                 print("Fetching data from Cache")
@@ -133,7 +132,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             
             else:
                 metaData = db.parseMetaData(request.username, request.filename)
-                downloadHelper = DownloadHelper(self.primary, self.hostname, self.serverPort, self.activeNodesChecker)
+                downloadHelper = DownloadHelper(self.hostname, self.serverPort, self.activeNodesChecker)
                 data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
                 print("Sending the data to client")
                 chunk_size = 4000000
