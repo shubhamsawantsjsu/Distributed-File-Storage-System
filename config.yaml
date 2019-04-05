@@ -30,7 +30,7 @@ four:
  #connection_port : [4001, 5001]
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
- raft_port: 3001
+
 
 five:
  hostname: 192.168.0.5
