@@ -1,4 +1,8 @@
 from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor
+
+from threading import Thread
+import asyncio
 import grpc
 import sys      #pip3 install sys
 sys.path.append('./generated')
@@ -18,15 +22,18 @@ import HeartbeatService
 from ActiveNodesChecker import ActiveNodesChecker
 from ShardingHandler import ShardingHandler
 from FileServer import FileServer
+from Raft import Raft
+from RaftHelper import RaftHelper
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-def run_server(hostname, server_port, primary):
+def run_server(hostname, server_port, primary, raft_port):
     if(primary==1): print("This server is the current leader.")
     print('gRPC Port:{}'.format(server_port))
    
     activeNodesChecker = ActiveNodesChecker()
     shardingHandler = ShardingHandler(activeNodesChecker)
+    raftHelper = RaftHelper(hostname, server_port, raft_port, activeNodesChecker)
 
     #GRPC - File Service + heartbeat service
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -35,8 +42,15 @@ def run_server(hostname, server_port, primary):
     server.add_insecure_port('[::]:{}'.format(server_port))
     server.start()
 
-    ## Monitor the iptable.txt for node changes and keep track of active channels ##
-    threading.Thread(target=ActiveNodesChecker.readAvailableIPAddresses(activeNodesChecker), daemon=True).start()
+    print("Starting raft")    
+
+    t1 = Thread(target=RaftHelper.startRaftServer, args=(raftHelper,))
+    t2 = Thread(target=ActiveNodesChecker.readAvailableIPAddresses, args=(activeNodesChecker,))
+
+    t2.start()
+    t1.start()
+
+    print("Both threads have been started")
 
     try:
         while True:
@@ -56,4 +70,5 @@ if __name__ == '__main__':
     server_host = config_dict['hostname']
     server_port = str(config_dict['server_port'])
     primary = config_dict['primary']
-    run_server(server_host, server_port, primary)
+    raft_port = str(config_dict['raft_port'])
+    run_server(server_host, server_port, primary, raft_port)

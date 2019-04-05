@@ -60,6 +60,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             currDataSize+= sys.getsizeof(request.data)
             currDataBytes+=request.data
 
+            print("Came here")
             for request in request_iterator:
 
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):

@@ -13,7 +13,7 @@ class ActiveNodesChecker():
 
     #Read IPs from Static Text file
     def readAvailableIPAddresses(self):
-        #print("Inside readAvailableIPAddresses")
+        print("Inside readAvailableIPAddresses")
         ip_addresses=[]
         with open('iptable.txt') as f:
                 for line in f:
@@ -44,8 +44,12 @@ class ActiveNodesChecker():
         
             self.heartBeatChecker()
 
-            # for dic in self.active_ip_channel_dict:
-            #     print(dic)
+    def getAllAvailableIPAddresses(self):
+        ip_addresses=[]
+        with open('iptable.txt') as f:
+            for line in f:
+                ip_addresses.append(line.split()[0])
+        return ip_addresses
 
     def getIPAddressListFromString(self, ipAddresses):
         result = []
