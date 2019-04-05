@@ -1,5 +1,6 @@
 from concurrent import futures
 
+import os
 import grpc
 import sys
 sys.path.append('../generated')
@@ -16,6 +17,7 @@ import threading
 import hashlib
 from ShardingHandler import ShardingHandler
 from DownloadHelper import DownloadHelper
+from lru import LRU
 
 UPLOAD_SHARD_SIZE = 50*1024*1024
 
@@ -27,6 +29,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         self.activeNodesChecker = activeNodesChecker
         self.shardingHandler = shardingHandler
         self.hostname = hostname
+        self.lru = LRU(5)
         
     def UploadFile(self, request_iterator, context):
         print("Inside Server method ---------- UploadFile")
@@ -51,13 +54,14 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             for request in request_iterator:
                 username, filename = request.username, request.filename
                 if(self.fileExists(username, filename)):
-                    return fileService_pb2.ack(success=False, message="File already exists for this user.")
+                    return fileService_pb2.ack(success=False, message="File already exists for this user. Please rename or delete file first.")
                 break
             
             currDataSize+= sys.getsizeof(request.data)
             currDataBytes+=request.data
-            
+
             for request in request_iterator:
+
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
                     self.sendDataToDestination(currDataBytes, node, username, filename, seqNo, active_ip_channel_dict[node])
                     metaData.append([node, seqNo])
@@ -112,18 +116,34 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
     def DownloadFile(self, request, context):
 
         if(self.primary==1):
-            metaData = db.parseMetaData(request.username, request.filename)
-            downloadHelper = DownloadHelper(self.primary, self.hostname, self.serverPort, self.activeNodesChecker)
-            data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
-            print("Sending the data to client")
-            chunk_size = 4000000
-            start, end = 0, chunk_size
-            while(True):
-                chunk = data[start:end]
-                if(len(chunk)==0): break
-                start=end
-                end += chunk_size
-                yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
+
+            if(self.lru.has_key(request.username + "_" + request.filename)):
+                print("Fetching data from Cache")
+                CHUNK_SIZE=4000000
+                fileName = request.username + "_" + request.filename
+                filePath = self.lru[fileName]
+                outfile = os.path.join(filePath, fileName)
+                
+                with open(outfile, 'rb') as infile:
+                    while True:
+                        chunk = infile.read(CHUNK_SIZE)
+                        if not chunk: break
+                        yield fileService_pb2.FileData(username=request.username, filename=request.filename, data=chunk, seqNo=1)
+            
+            else:
+                metaData = db.parseMetaData(request.username, request.filename)
+                downloadHelper = DownloadHelper(self.primary, self.hostname, self.serverPort, self.activeNodesChecker)
+                data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)
+                print("Sending the data to client")
+                chunk_size = 4000000
+                start, end = 0, chunk_size
+                while(True):
+                    chunk = data[start:end]
+                    if(len(chunk)==0): break
+                    start=end
+                    end += chunk_size
+                    yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
+                self.saveInCache(request.username, request.filename, data)
 
         else:
             key = request.username + "_" + request.filename + "_" + str(request.seqNo)
@@ -136,48 +156,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 start=end
                 end += chunk_size
                 yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
-
-    # def DownloadFile(self, request, context):
-    #     print("Download File - ", request.filename)
-
-    #     #If primary, find which node has file
-    #     if(self.primary==1):
-    #         metaData = db.parseMetaData(request.username, request.filename)
-    #         for meta in metaData:
-    #             #print("Meta=", meta)
-    #             node, seqNo = str(meta[0]), meta[1]
-    #             if(node==str(self.serverAddress)):
-    #                 key = request.username + "_" + request.filename + "_" + str(seqNo)
-    #                 data = db.getFileData(key)
-    #                 chunk_size = 4000000
-    #                 start, end = 0, chunk_size
-    #                 while(True):
-    #                     chunk = data[start:end]
-    #                     if(len(chunk)==0): break
-    #                     start=end
-    #                     end += chunk_size
-    #                     yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = seqNo)
-                    
-    #             else:
-    #                 print("Fetching Data from Node {}".format(node))
-    #                 active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
-    #                 channel = active_ip_channel_dict[node]
-    #                 stub = fileService_pb2_grpc.FileserviceStub(channel)
-    #                 responses = stub.DownloadFile(fileService_pb2.FileInfo(username = request.username, filename = request.filename, seqNo = seqNo))
-    #                 for response in responses:
-    #                     yield response
-    #     #else not primary - search for file
-    #     else:
-    #         key = request.username + "_" + request.filename + "_" + str(request.seqNo)
-    #         data = db.getFileData(key)
-    #         chunk_size = 3*1024*1024
-    #         start, end = 0, chunk_size
-    #         while(True):
-    #             chunk = data[start:end]
-    #             if(len(chunk)==0): break
-    #             start=end
-    #             end += chunk_size
-    #             yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
 
     def ListFiles(self, request, context):
         print("List Files Called")
@@ -221,5 +199,16 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             #print("Connection timeout. Unable to connect to port ")
             return False
         return True
-            
+    
+    def saveInCache(self, username, filename, data):
+        if(len(self.lru.items())>=self.lru.get_size()):
+            fileToDel, path = self.lru.peek_last_item()
+            os.remove(path+"/"+fileToDel)
+        
+        self.lru[username+"_"+filename]="cache"
+        filePath=os.path.join('cache', username+"_"+filename)
+        saveFile = open(filePath, 'wb')
+        saveFile.write(data)
+        saveFile.close()
+    
 

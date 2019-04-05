@@ -1,55 +1,47 @@
 # Server groups
-
-# connection_port are simulating other nodes in the cluster for the moment. 
-# Use connection_port when testing on a single computer
-# Read from routingTable.txt when you have real IPs from ARP cronjob
+# Config Variables
 
 one:
  hostname: localhost
- rest_server_port: 3001
  server_port : 3000
- #connection_port : [4001, 5001]
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
 
 two:
  hostname: localhost
- rest_server_port: 4001
  server_port : 4000
- #connection_port : [3001, 5001]
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
 
 
 three:
  hostname: localhost
- rest_server_port: 5001
  server_port : 5000
- #connection_port : [4001, 3001]
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
 
 four:
  hostname: 192.168.0.2
- rest_server_port: 3001
  server_port : 3000
- #connection_port : [4001, 5001]
  primary : 1
  mongodb_url: "mongodb://localhost:27017"
 
 five:
  hostname: 192.168.0.5
- rest_server_port: 4001
  server_port : 3000
- #connection_port : [3001, 5001]
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
 
 
 six:
  hostname: 192.168.0.6
- rest_server_port: 5001
  server_port : 3000
- #connection_port : [4001, 3001]
  primary : 0
  mongodb_url: "mongodb://localhost:27017"
+
+LRUCapacity: 5
+
+UPLOAD_SHARD_SIZE: 52428800
+
+
+

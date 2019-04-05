@@ -98,16 +98,4 @@ def run_client(serverAddress):
 
 
 if __name__ == '__main__':
-    # config_dict = yaml.load(open('config.yaml'))
-    # if(len(sys.argv)<2):
-    #     print("Usage python3 server.py <<server No>>")
-    #     print("Enter one, two or Three for server No.")
-    #     exit()
-    # config_dict = config_dict[str(sys.argv[1]).lower()]
-
-    # server_port = str(config_dict['server_port'])
-    # #connection_ports = config_dict['connection_port']
-    # rest_server_port = config_dict['rest_server_port']
-    # primary = config_dict['primary']
-    # writeLog=[]
     run_client('localhost:3000')
