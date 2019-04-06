@@ -26,7 +26,7 @@ from RaftHelper import RaftHelper
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-def run_server(hostname, server_port, raft_port):
+def run_server(hostname, server_port, raft_port, super_node_address):
     if(int(db.get("primaryStatus"))==1): print("This server is the current leader.")
     print('gRPC Port:{}'.format(server_port))
    
@@ -36,7 +36,7 @@ def run_server(hostname, server_port, raft_port):
 
     #GRPC - File Service + heartbeat service
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    fileService_pb2_grpc.add_FileserviceServicer_to_server(FileServer(hostname, server_port, activeNodesChecker, shardingHandler), server)
+    fileService_pb2_grpc.add_FileserviceServicer_to_server(FileServer(hostname, server_port, activeNodesChecker, shardingHandler, super_node_address), server)
     heartbeat_pb2_grpc.add_HearBeatServicer_to_server(HeartbeatService.Heartbeat(), server)
     server.add_insecure_port('[::]:{}'.format(server_port))
     server.start()
@@ -60,14 +60,15 @@ def run_server(hostname, server_port, raft_port):
 # ----------------------Main-------------------- #
 if __name__ == '__main__':
     # config_dict = yaml.load(open('config.yaml'), Loader=yaml.FullLoader) #yaml.load(open('config.yaml'))
-    config_dict = yaml.load(open('config.yaml'))
+    config_dict_orig = yaml.load(open('config.yaml'))
     if(len(sys.argv)<2):
         print("Usage python3 server.py <<server No>>")
         print("Enter one, two or three for server No.")
         exit()
-    config_dict = config_dict[str(sys.argv[1]).lower()]
+    config_dict = config_dict_orig[str(sys.argv[1]).lower()]
     server_host = config_dict['hostname']
     server_port = str(config_dict['server_port'])
     primary = int(db.get("primaryStatus")) #config_dict['primary']
     raft_port = str(config_dict['raft_port'])
-    run_server(server_host, server_port, raft_port)
+    super_node_address = config_dict_orig['super_node_address']
+    run_server(server_host, server_port, raft_port, super_node_address)
