@@ -40,7 +40,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         metaData, nodeData=[]
 
         if(int(db.get("primaryStatus"))==1):
-
+            print("Inside primary upload")
             currDataSize = 0
             currDataBytes = bytes("",'utf-8')
             seqNo=1
