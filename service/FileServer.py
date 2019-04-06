@@ -22,13 +22,14 @@ from lru import LRU
 UPLOAD_SHARD_SIZE = 50*1024*1024
 
 class FileServer(fileService_pb2_grpc.FileserviceServicer):
-    def __init__(self, hostname, server_port, activeNodesChecker, shardingHandler):
+    def __init__(self, hostname, server_port, activeNodesChecker, shardingHandler, superNodeAddress):
         self.serverPort = server_port
         self.serverAddress = hostname+":"+server_port
         self.activeNodesChecker = activeNodesChecker
         self.shardingHandler = shardingHandler
         self.hostname = hostname
         self.lru = LRU(5)
+        self.superNodeAddress = superNodeAddress
         
     def UploadFile(self, request_iterator, context):
         print("Inside Server method ---------- UploadFile")
@@ -100,7 +101,6 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
     def sendDataToDestination(self, currDataBytes, node, nodeReplica, username, filename, seqNo, channel):
         if(node==self.serverAddress):
-            #print("Self node : saving the data on local db")
             key = username + "_" + filename + "_" + str(seqNo)
             db.setData(key, currDataBytes)
             if(nodeReplica!=""):
@@ -223,5 +223,36 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         saveFile = open(filePath, 'wb')
         saveFile.write(data)
         saveFile.close()
+
+    def getLeastLoadedCluster(self, request, context):
+        active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
+        total_cpu_usage, total_disk_space, total_used_mem = 0.0,0.0,0.0
+        total_nodes = 0
+        for ip, channel in active_ip_channel_dict.items():
+            if(self.isChannelAlive(channel)):
+                stub = heartbeat_pb2_grpc.HearBeatStub(channel)
+                stats = stub.isAlive(heartbeat_pb2.NodeInfo(ip="", port=""))
+                total_cpu_usage = float(stats.cpu_usage)
+                total_disk_space = float(stats.disk_space)
+                total_used_mem = float(stats.used_mem)
+                total_nodes+=1
+
+        if(total_nodes==0):
+            return fileService_pb2.Stats(cpu_usage = str(100.00), disk_space = str(100.00), used_mem = str(100.00))
+
+        return fileService_pb2.Stats(cpu_usage = str(cpu_usage/total_nodes), disk_space = str(disk_space/total_nodes), used_mem = str(used_mem/total_nodes))
+
+    def getLeaderInfo(self, request, context):
+        channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
+        stub = fileService_pb2_grpc.FileserviceStub(channel)
+        response = stub.getLeaderInfo(fileService_pb2.NodeInfo(ip = self.hostname, port= self.serverPort))
+        print(response.message)
+
+
+
+        
+
+
+
     
 

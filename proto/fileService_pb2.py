@@ -7,7 +7,6 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -19,7 +18,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto/fileService.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x17proto/fileService.proto\"`\n\x08\x46ileData\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x12\r\n\x05seqNo\x18\x04 \x01(\x05\x12\x13\n\x0breplicaNode\x18\x05 \x01(\t\"/\n\x08MetaData\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tseqValues\x18\x02 \x01(\x0c\"\'\n\x03\x61\x63k\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1c\n\x08UserInfo\x12\x10\n\x08username\x18\x01 \x01(\t\"=\n\x08\x46ileInfo\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\r\n\x05seqNo\x18\x03 \x01(\x05\"%\n\x10\x46ileListResponse\x12\x11\n\tFilenames\x18\x01 \x01(\t2\xa4\x02\n\x0b\x46ileservice\x12\x1f\n\nUploadFile\x12\t.FileData\x1a\x04.ack(\x01\x12&\n\x0c\x44ownloadFile\x12\t.FileInfo\x1a\t.FileData0\x01\x12\x1d\n\nFileSearch\x12\t.FileInfo\x1a\x04.ack\x12\"\n\rReplicateFile\x12\t.FileData\x1a\x04.ack(\x01\x12(\n\x08\x46ileList\x12\t.UserInfo\x1a\x11.FileListResponse\x12\x1d\n\nFileDelete\x12\t.FileInfo\x1a\x04.ack\x12\x1f\n\nUpdateFile\x12\t.FileData\x1a\x04.ack(\x01\x12\x1f\n\x0cMetaDataInfo\x12\t.MetaData\x1a\x04.ackb\x06proto3')
+  serialized_options=None,
+  serialized_pb=_b('\n\x17proto/fileService.proto\"`\n\x08\x46ileData\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x12\r\n\x05seqNo\x18\x04 \x01(\x05\x12\x13\n\x0breplicaNode\x18\x05 \x01(\t\"/\n\x08MetaData\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tseqValues\x18\x02 \x01(\x0c\"\'\n\x03\x61\x63k\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1c\n\x08UserInfo\x12\x10\n\x08username\x18\x01 \x01(\t\"=\n\x08\x46ileInfo\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\r\n\x05seqNo\x18\x03 \x01(\x05\"%\n\x10\x46ileListResponse\x12\x11\n\tFilenames\x18\x01 \x01(\t\"$\n\x08NodeInfo\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\t\"@\n\x05Stats\x12\x11\n\tcpu_usage\x18\x01 \x01(\t\x12\x12\n\ndisk_space\x18\x02 \x01(\t\x12\x10\n\x08used_mem\x18\x03 \x01(\t2\xf2\x02\n\x0b\x46ileservice\x12\x1f\n\nUploadFile\x12\t.FileData\x1a\x04.ack(\x01\x12&\n\x0c\x44ownloadFile\x12\t.FileInfo\x1a\t.FileData0\x01\x12\x1d\n\nFileSearch\x12\t.FileInfo\x1a\x04.ack\x12\"\n\rReplicateFile\x12\t.FileData\x1a\x04.ack(\x01\x12(\n\x08\x46ileList\x12\t.UserInfo\x1a\x11.FileListResponse\x12\x1d\n\nFileDelete\x12\t.FileInfo\x1a\x04.ack\x12\x1f\n\nUpdateFile\x12\t.FileData\x1a\x04.ack(\x01\x12*\n\x15getLeastLoadedCluster\x12\t.NodeInfo\x1a\x06.Stats\x12 \n\rgetLeaderInfo\x12\t.NodeInfo\x1a\x04.ack\x12\x1f\n\x0cMetaDataInfo\x12\t.MetaData\x1a\x04.ackb\x06proto3')
 )
 
 
@@ -38,42 +38,42 @@ _FILEDATA = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='filename', full_name='FileData.filename', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='data', full_name='FileData.data', index=2,
       number=3, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='seqNo', full_name='FileData.seqNo', index=3,
       number=4, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='replicaNode', full_name='FileData.replicaNode', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -97,21 +97,21 @@ _METADATA = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='seqValues', full_name='MetaData.seqValues', index=1,
       number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -135,21 +135,21 @@ _ACK = _descriptor.Descriptor(
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='message', full_name='ack.message', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -173,14 +173,14 @@ _USERINFO = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -204,28 +204,28 @@ _FILEINFO = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='filename', full_name='FileInfo.filename', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='seqNo', full_name='FileInfo.seqNo', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -249,14 +249,14 @@ _FILELISTRESPONSE = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -266,12 +266,97 @@ _FILELISTRESPONSE = _descriptor.Descriptor(
   serialized_end=345,
 )
 
+
+_NODEINFO = _descriptor.Descriptor(
+  name='NodeInfo',
+  full_name='NodeInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='ip', full_name='NodeInfo.ip', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='NodeInfo.port', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=347,
+  serialized_end=383,
+)
+
+
+_STATS = _descriptor.Descriptor(
+  name='Stats',
+  full_name='Stats',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='cpu_usage', full_name='Stats.cpu_usage', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='disk_space', full_name='Stats.disk_space', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='used_mem', full_name='Stats.used_mem', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=385,
+  serialized_end=449,
+)
+
 DESCRIPTOR.message_types_by_name['FileData'] = _FILEDATA
 DESCRIPTOR.message_types_by_name['MetaData'] = _METADATA
 DESCRIPTOR.message_types_by_name['ack'] = _ACK
 DESCRIPTOR.message_types_by_name['UserInfo'] = _USERINFO
 DESCRIPTOR.message_types_by_name['FileInfo'] = _FILEINFO
 DESCRIPTOR.message_types_by_name['FileListResponse'] = _FILELISTRESPONSE
+DESCRIPTOR.message_types_by_name['NodeInfo'] = _NODEINFO
+DESCRIPTOR.message_types_by_name['Stats'] = _STATS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 FileData = _reflection.GeneratedProtocolMessageType('FileData', (_message.Message,), dict(
@@ -316,6 +401,20 @@ FileListResponse = _reflection.GeneratedProtocolMessageType('FileListResponse', 
   ))
 _sym_db.RegisterMessage(FileListResponse)
 
+NodeInfo = _reflection.GeneratedProtocolMessageType('NodeInfo', (_message.Message,), dict(
+  DESCRIPTOR = _NODEINFO,
+  __module__ = 'proto.fileService_pb2'
+  # @@protoc_insertion_point(class_scope:NodeInfo)
+  ))
+_sym_db.RegisterMessage(NodeInfo)
+
+Stats = _reflection.GeneratedProtocolMessageType('Stats', (_message.Message,), dict(
+  DESCRIPTOR = _STATS,
+  __module__ = 'proto.fileService_pb2'
+  # @@protoc_insertion_point(class_scope:Stats)
+  ))
+_sym_db.RegisterMessage(Stats)
+
 
 
 _FILESERVICE = _descriptor.ServiceDescriptor(
@@ -323,9 +422,9 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
   full_name='Fileservice',
   file=DESCRIPTOR,
   index=0,
-  options=None,
-  serialized_start=348,
-  serialized_end=640,
+  serialized_options=None,
+  serialized_start=452,
+  serialized_end=822,
   methods=[
   _descriptor.MethodDescriptor(
     name='UploadFile',
@@ -334,7 +433,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEDATA,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='DownloadFile',
@@ -343,7 +442,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEINFO,
     output_type=_FILEDATA,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='FileSearch',
@@ -352,7 +451,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEINFO,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='ReplicateFile',
@@ -361,7 +460,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEDATA,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='FileList',
@@ -370,7 +469,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_USERINFO,
     output_type=_FILELISTRESPONSE,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='FileDelete',
@@ -379,7 +478,7 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEINFO,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='UpdateFile',
@@ -388,16 +487,34 @@ _FILESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILEDATA,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='getLeastLoadedCluster',
+    full_name='Fileservice.getLeastLoadedCluster',
+    index=7,
+    containing_service=None,
+    input_type=_NODEINFO,
+    output_type=_STATS,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='getLeaderInfo',
+    full_name='Fileservice.getLeaderInfo',
+    index=8,
+    containing_service=None,
+    input_type=_NODEINFO,
+    output_type=_ACK,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='MetaDataInfo',
     full_name='Fileservice.MetaDataInfo',
-    index=7,
+    index=9,
     containing_service=None,
     input_type=_METADATA,
     output_type=_ACK,
-    options=None,
+    serialized_options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_FILESERVICE)

@@ -84,7 +84,6 @@ class ActiveNodesChecker():
         try:
             grpc.channel_ready_future(channel).result(timeout=1)
         except grpc.FutureTimeoutError:
-            #print("Connection timeout. Unable to connect to port ")
             return False
         return True
 
