@@ -36,9 +36,8 @@ class ActiveNodesChecker():
             except:
                 db.setData("ip_addresses","")
 
-            with open('iptable.txt') as f:
-                for line in f:
-                    ip_addresses.append(line.split()[0])
+            ip_addresses = self.getAllAvailableIPAddresses()
+            
             db.setData("ip_addresses", self.getStringFromIPAddressesList(ip_addresses))
 
             # If there is any addition or deletion of node then create a new channel for that and update {channel, ip} map.
