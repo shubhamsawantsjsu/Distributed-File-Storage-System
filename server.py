@@ -70,4 +70,5 @@ if __name__ == '__main__':
     server_port = str(config_dict['server_port'])
     raft_port = str(config_dict['raft_port'])
     super_node_address = config_dict_orig['super_node_address']
+    db.setData("primaryStatus", 0)
     run_server(server_host, server_port, raft_port, super_node_address)

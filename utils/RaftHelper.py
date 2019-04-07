@@ -70,6 +70,11 @@ class RaftHelper():
 
        if (raftInstance._getLeader() is None):
             db.setData("primaryStatus", 1)
+            channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
+            stub = fileService_pb2_grpc.FileserviceStub(channel)
+            response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
+            print(response.message)
+            db.setData("primaryStatus", 1)
        elif(isLeader and isPrimary==0):
             db.setData("primaryStatus", 1)
             channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
