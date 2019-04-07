@@ -92,9 +92,10 @@ class RaftHelper():
 
     # Method to send newly elected leader info to supernode
     def sendLeaderInfoToSuperNode(self):
-        channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
-        stub = fileService_pb2_grpc.FileserviceStub(channel)
-        response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
-        print(response.message)
+        return
+        # channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
+        # stub = fileService_pb2_grpc.FileserviceStub(channel)
+        # response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
+        # print(response.message)
 
 

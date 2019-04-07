@@ -68,7 +68,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             for request in request_iterator:
                 username, filename = request.username, request.filename
                 print("Key is-----------------", username+"_"+filename)
-                if(self.file2Exists(username, filename)):
+                if(self.fileExists(username, filename)):
                     print("sending neg ack")
                     return fileService_pb2.ack(success=False, message="File already exists for this user. Please rename or delete file first.")
                 break
@@ -168,6 +168,8 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
         # If the node is the leader of the cluster. 
         if(int(db.get("primaryStatus"))==1):
+            
+            print("Inside primary download")
 
             # If the file is present in cache then just fetch it and return. No need to go to individual node.
             if(self.lru.has_key(request.username + "_" + request.filename)):
@@ -185,9 +187,12 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             
             # If the file is not present in the cache, then fetch it from the individual node.
             else:
+                print("Fetching the metadata")
                 # Step 1: get metadata i.e. the location of chunks.
                 metaData = db.parseMetaData(request.username, request.filename)
 
+                print(metaData)
+                
                 #Step 2: make gRPC calls and get the fileData from all the nodes.
                 downloadHelper = DownloadHelper(self.hostname, self.serverPort, self.activeNodesChecker)
                 data = downloadHelper.getDataFromNodes(request.username, request.filename, metaData)

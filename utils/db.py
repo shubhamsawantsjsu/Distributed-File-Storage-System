@@ -31,6 +31,7 @@ def saveMetaDataOnOtherNodes(uniqueFileName, dataLocations):
 
 def parseMetaData(username, filename):
     key = username + "_" + filename
+    print("inside parseMetaData--- key is", key)
     return ast.literal_eval(r.get(key).decode('utf-8'))
 
 
