@@ -68,7 +68,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             for request in request_iterator:
                 username, filename = request.username, request.filename
                 print("Key is-----------------", username+"_"+filename)
-                if(self.fileExists(username, filename)):
+                if(self.fileExists(username, filename)==0):
                     print("sending neg ack")
                     return fileService_pb2.ack(success=False, message="File already exists for this user. Please rename or delete file first.")
                 break
@@ -170,6 +170,12 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         if(int(db.get("primaryStatus"))==1):
             
             print("Inside primary download")
+            
+            # Check if file exists
+            if(self.fileExists(request.username, request.filename)==0):
+                print("File does not exist")
+                yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=bytes("",'utf-8'), seqNo = 0)
+                return
 
             # If the file is present in cache then just fetch it and return. No need to go to individual node.
             if(self.lru.has_key(request.username + "_" + request.filename)):
@@ -188,6 +194,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             # If the file is not present in the cache, then fetch it from the individual node.
             else:
                 print("Fetching the metadata")
+                
                 # Step 1: get metadata i.e. the location of chunks.
                 metaData = db.parseMetaData(request.username, request.filename)
 
@@ -314,6 +321,10 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         stub = fileService_pb2_grpc.FileserviceStub(channel)
         response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
         print(response.message)
+
+
+            
+
 
 
 
