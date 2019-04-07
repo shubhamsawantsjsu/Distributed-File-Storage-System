@@ -23,6 +23,7 @@ def keyExists(key):
 #metadata -> node, seq
 def saveMetaData(username, filename, metaData):
     key = username + "_" + filename
+    print("Key from db", key)
     r.set(key,str(metaData).encode('utf-8'))
 
 def saveMetaDataOnOtherNodes(uniqueFileName, dataLocations):

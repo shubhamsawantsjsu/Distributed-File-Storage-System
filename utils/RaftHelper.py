@@ -17,10 +17,13 @@ from Raft import Raft
 from pysyncobj import SyncObj, replicated
 
 class RaftHelper():
-   def __init__(self, hostname, server_port, raft_port, activeNodesChecker):
+   def __init__(self, hostname, server_port, raft_port, activeNodesChecker, superNodeAddress):
        self.activeNodesChecker = activeNodesChecker
        self.serverAddress = hostname + ":" + raft_port
        self.raft_port = raft_port
+       self.superNodeAddress = superNodeAddress
+       self.hostname = hostname
+       self.serverPort = server_port
 
    def startRaftServer(self):
       db.setData("primaryStatus", 0)
@@ -47,9 +50,9 @@ class RaftHelper():
           n += 1
           if n % 20 == 0:
               if True:
-                  print("===================================")
-                  print("Current Leader running at address:", raftInstance._isLeader())
-                  print(raftInstance._getLeader())
+                  #print("===================================")
+                  #print("Current Leader running at address:", raftInstance._isLeader())
+                  #print(raftInstance._getLeader())
                   self.updatePrimaryStatus(raftInstance._isLeader(), raftInstance)
 
    def getListOfOtherNodes(self, AllAvailableIPAddresses):
@@ -62,9 +65,16 @@ class RaftHelper():
 
    def updatePrimaryStatus(self, isLeader, raftInstance):
        isPrimary = int(db.get("primaryStatus"))
+       #print("isPrimary------------------", raftInstance._getLeader)
+       #print("FromDb---------------------", isPrimary)
+
        if (raftInstance._getLeader() is None):
-           db.setData("primaryStatus", 1)
+            db.setData("primaryStatus", 1)
        elif(isLeader and isPrimary==0):
-           db.setData("primaryStatus", 1)
+            db.setData("primaryStatus", 1)
+            channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
+            stub = fileService_pb2_grpc.FileserviceStub(channel)
+            response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
+            print(response.message)
        elif(not isLeader and isPrimary==1):
            db.setData("primaryStatus", 0)

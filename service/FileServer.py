@@ -53,7 +53,9 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
             for request in request_iterator:
                 username, filename = request.username, request.filename
+                print("Key is-----------------", username+"_"+filename)
                 if(self.fileExists(username, filename)):
+                    print("sending neg ack")
                     return fileService_pb2.ack(success=False, message="File already exists for this user. Please rename or delete file first.")
                 break
             
@@ -127,6 +129,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
     def DownloadFile(self, request, context):
 
+        print("Inside Download")
         if(int(db.get("primaryStatus"))==1):
 
             if(self.lru.has_key(request.username + "_" + request.filename)):
@@ -159,6 +162,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
 
         else:
             key = request.username + "_" + request.filename + "_" + str(request.seqNo)
+            print(key)
             data = db.getFileData(key)
             chunk_size = 4000000
             start, end = 0, chunk_size
@@ -176,6 +180,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         return fileService_pb2.FileList(lstFileNames="FILE-LIST")
     
     def fileExists(self, username, filename):
+        print("isFile Present", db.keyExists(username + "_" + filename))
         return db.keyExists(username + "_" + filename)
     
     def getLeastLoadedNode(self):
@@ -224,7 +229,8 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         saveFile.write(data)
         saveFile.close()
 
-    def getLeastLoadedCluster(self, request, context):
+    def getClusterStats(self, request, context):
+        print("Inside getClusterStats")
         active_ip_channel_dict = self.activeNodesChecker.getActiveChannels()
         total_cpu_usage, total_disk_space, total_used_mem = 0.0,0.0,0.0
         total_nodes = 0
@@ -238,14 +244,14 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 total_nodes+=1
 
         if(total_nodes==0):
-            return fileService_pb2.Stats(cpu_usage = str(100.00), disk_space = str(100.00), used_mem = str(100.00))
+            return fileService_pb2.ClusterStats(cpu_usage = str(100.00), disk_space = str(100.00), used_mem = str(100.00))
 
-        return fileService_pb2.Stats(cpu_usage = str(cpu_usage/total_nodes), disk_space = str(disk_space/total_nodes), used_mem = str(used_mem/total_nodes))
+        return fileService_pb2.ClusterStats(cpu_usage = str(total_cpu_usage/total_nodes), disk_space = str(total_disk_space/total_nodes), used_mem = str(total_used_mem/total_nodes))
 
     def getLeaderInfo(self, request, context):
         channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
         stub = fileService_pb2_grpc.FileserviceStub(channel)
-        response = stub.getLeaderInfo(fileService_pb2.NodeInfo(ip = self.hostname, port= self.serverPort))
+        response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
         print(response.message)
 
 

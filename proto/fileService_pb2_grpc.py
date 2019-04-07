@@ -49,14 +49,14 @@ class FileserviceStub(object):
         request_serializer=proto_dot_fileService__pb2.FileData.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
-    self.getLeastLoadedCluster = channel.unary_unary(
-        '/Fileservice/getLeastLoadedCluster',
-        request_serializer=proto_dot_fileService__pb2.NodeInfo.SerializeToString,
-        response_deserializer=proto_dot_fileService__pb2.Stats.FromString,
+    self.getClusterStats = channel.unary_unary(
+        '/Fileservice/getClusterStats',
+        request_serializer=proto_dot_fileService__pb2.Empty.SerializeToString,
+        response_deserializer=proto_dot_fileService__pb2.ClusterStats.FromString,
         )
     self.getLeaderInfo = channel.unary_unary(
         '/Fileservice/getLeaderInfo',
-        request_serializer=proto_dot_fileService__pb2.NodeInfo.SerializeToString,
+        request_serializer=proto_dot_fileService__pb2.ClusterInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.MetaDataInfo = channel.unary_unary(
@@ -119,7 +119,7 @@ class FileserviceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def getLeastLoadedCluster(self, request, context):
+  def getClusterStats(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -178,14 +178,14 @@ def add_FileserviceServicer_to_server(servicer, server):
           request_deserializer=proto_dot_fileService__pb2.FileData.FromString,
           response_serializer=proto_dot_fileService__pb2.ack.SerializeToString,
       ),
-      'getLeastLoadedCluster': grpc.unary_unary_rpc_method_handler(
-          servicer.getLeastLoadedCluster,
-          request_deserializer=proto_dot_fileService__pb2.NodeInfo.FromString,
-          response_serializer=proto_dot_fileService__pb2.Stats.SerializeToString,
+      'getClusterStats': grpc.unary_unary_rpc_method_handler(
+          servicer.getClusterStats,
+          request_deserializer=proto_dot_fileService__pb2.Empty.FromString,
+          response_serializer=proto_dot_fileService__pb2.ClusterStats.SerializeToString,
       ),
       'getLeaderInfo': grpc.unary_unary_rpc_method_handler(
           servicer.getLeaderInfo,
-          request_deserializer=proto_dot_fileService__pb2.NodeInfo.FromString,
+          request_deserializer=proto_dot_fileService__pb2.ClusterInfo.FromString,
           response_serializer=proto_dot_fileService__pb2.ack.SerializeToString,
       ),
       'MetaDataInfo': grpc.unary_unary_rpc_method_handler(

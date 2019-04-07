@@ -32,7 +32,7 @@ def run_server(hostname, server_port, raft_port, super_node_address):
    
     activeNodesChecker = ActiveNodesChecker()
     shardingHandler = ShardingHandler(activeNodesChecker)
-    raftHelper = RaftHelper(hostname, server_port, raft_port, activeNodesChecker)
+    raftHelper = RaftHelper(hostname, server_port, raft_port, activeNodesChecker, super_node_address)
 
     #GRPC - File Service + heartbeat service
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -68,7 +68,6 @@ if __name__ == '__main__':
     config_dict = config_dict_orig[str(sys.argv[1]).lower()]
     server_host = config_dict['hostname']
     server_port = str(config_dict['server_port'])
-    primary = int(db.get("primaryStatus")) #config_dict['primary']
     raft_port = str(config_dict['raft_port'])
     super_node_address = config_dict_orig['super_node_address']
     run_server(server_host, server_port, raft_port, super_node_address)

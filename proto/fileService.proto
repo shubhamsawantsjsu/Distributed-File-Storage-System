@@ -9,8 +9,8 @@ service Fileservice {
 	rpc FileList (UserInfo) returns (FileListResponse);
 	rpc FileDelete (FileInfo) returns (ack);
 	rpc UpdateFile (stream FileData) returns (ack);
-	rpc getLeastLoadedCluster (NodeInfo) returns (Stats);
-  	rpc getLeaderInfo (NodeInfo) returns (ack);
+	rpc getClusterStats (Empty) returns (ClusterStats);
+  	rpc getLeaderInfo (ClusterInfo) returns (ack);
 	rpc MetaDataInfo (MetaData) returns (ack);
 }
 
@@ -47,13 +47,16 @@ message FileListResponse {
 }
 
 // The request message containing ip address and leader status
-message NodeInfo {
+message ClusterInfo {
   string ip = 1;
   string port = 2;
+  string clusterName = 3;
 }
 
+message Empty {}
+
 // The response message containing the status of the server
-message Stats {
+message ClusterStats {
    
   string cpu_usage = 1;
   string disk_space = 2; 
