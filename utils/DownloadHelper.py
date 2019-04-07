@@ -16,6 +16,9 @@ import threading
 import hashlib
 import concurrent.futures
 
+#
+#   *** DownloadHelper Utility : Helper class to fetch fileData chunks from other nodes. ***
+#
 class DownloadHelper():
 
     def __init__(self, hostname, server_port, activeNodesChecker):
@@ -23,8 +26,11 @@ class DownloadHelper():
         self.serverAddress = hostname+":"+server_port
         self.seqDataMap = {}
 
+    # This method is responsible for getting data from all the nodes using medata.
+    # This method stitches back the data and sends to UploadFile service. 
     def getDataFromNodes(self, username, filename, metaData):
         
+        # Start separate threads where each thread will get data from a particular node and will update the 'seqDataMap'.
         with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor:
             list_of_executors = {executor.submit(self.getDataFromIndividualNode, metas, username, filename): metas for metas in metaData}
             for future in concurrent.futures.as_completed(list_of_executors):
@@ -34,8 +40,12 @@ class DownloadHelper():
                     print(exec)
 
         print("All tasks are completed")
+
+        # Stitch the data back from 'seqDataMap'.
         return self.buildTheDataFromMap()
 
+    # This method is responsible for getting data from specific node.
+    # Multiple threads will call this method to get the data parallely from each node.
     def getDataFromIndividualNode(self, meta, username, filename):
         print("Inside getDataFromIndividualNode")
         print("Task Executed {}".format(threading.current_thread()))
@@ -66,6 +76,7 @@ class DownloadHelper():
         self.seqDataMap[seqNo] = data
         print("returning from the getDataFromIndividualNode")
 
+    # This method is responsible for stitching back the data from seqDataMap.
     def buildTheDataFromMap(self):
         fileData = bytes("",'utf-8')
         totalNumberOfChunks = len(self.seqDataMap)

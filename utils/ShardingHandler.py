@@ -14,15 +14,19 @@ import yaml
 import threading
 import hashlib
 
+#
+#   *** ShardingHandler Utility : Helper class to get least loaded nodes. ***
+#
 class ShardingHandler():
     def __init__(self, activeNodesChecker):
         self.active_ip_channel_dict = activeNodesChecker.getActiveChannels()
 
     def leastUtilizedNode(self):
         print("Inside leastUtilizedNode method")
-        #return "localhost:4000"
         return self.leastUtilizedNodeHelper()
     
+    # This method is responsible for finding 2 least loaded nodes from cluster.
+    # This method makes gRPC calls to each node in the cluster asking for the CPU stats and based on that it decides the 2 least loaded nodes.
     def leastUtilizedNodeHelper(self):
         minVal, minVal2 = 301.00, 301.00
         leastLoadedNode, leastLoadedNode2 = "",""
@@ -44,6 +48,7 @@ class ShardingHandler():
             return -1
         return leastLoadedNode, leastLoadedNode2
 
+    # This method checks whether the channel is alive or not.
     def isChannelAlive(self, channel):
         try:
             grpc.channel_ready_future(channel).result(timeout=1)
