@@ -51,4 +51,4 @@ LRUCapacity: 5
 
 UPLOAD_SHARD_SIZE: 52428800
 
-super_node_address: "192.168.0.5:9000"
+super_node_address: "localhost:9000"
