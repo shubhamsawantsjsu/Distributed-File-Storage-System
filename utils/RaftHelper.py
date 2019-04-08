@@ -55,7 +55,8 @@ class RaftHelper():
             if raftInstance.getCounter() != old_value:
                 old_value = raftInstance.getCounter()
             if raftInstance._getLeader() is None:
-                if(not isLeaderUpdated):
+                #print(len(self.activeNodesChecker.getActiveChannels()))
+                if(not isLeaderUpdated and len(self.activeNodesChecker.getActiveChannels())==1):
                     print("Since the leader is None, hence declaring myself the leader:", self.serverAddress)
                     db.setData("primaryStatus", 1)
                     self.sendLeaderInfoToSuperNode()
@@ -81,6 +82,9 @@ class RaftHelper():
     def updatePrimaryStatus(self, isLeader, raftInstance):
         isPrimary = int(db.get("primaryStatus"))
 
+        if(isPrimary==1):
+            self.sendLeaderInfoToSuperNode()
+
         if (raftInstance._getLeader() is None):
             db.setData("primaryStatus", 1)
             self.sendLeaderInfoToSuperNode()
@@ -91,11 +95,17 @@ class RaftHelper():
             db.setData("primaryStatus", 0)
 
     # Method to send newly elected leader info to supernode
-    def sendLeaderInfoToSuperNode(self):
-        #return
-        channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
-        stub = fileService_pb2_grpc.FileserviceStub(channel)
-        response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
-        print(response.message)
+    def sendLeaderInfoToSuperNode(self):        
+        try:
+            channel = grpc.insecure_channel('{}'.format(self.superNodeAddress))
+            stub = fileService_pb2_grpc.FileserviceStub(channel)
+            response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
+            print(response.message)
+        except:
+            print("Not able to connect to supernode")
+            pass
+
+        
+        
 
 
