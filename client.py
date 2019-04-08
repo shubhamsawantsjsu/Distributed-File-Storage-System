@@ -79,18 +79,33 @@ def deleteTheFile(stub):
     response = stub.FileDelete(fileService_pb2.FileInfo(username=userName, filename=fileName))
     print(response.message)
 
+def isFilePresent(stub):
+    userName = input("Enter Username: ")
+    fileName = input("Enter file name: ")
+    response = stub.FileSearch(fileService_pb2.FileInfo(username=userName, filename=fileName))
+
+    if(response.success==True):
+        print(response.message)
+    else:
+        print(response.message)
+
 def handleUserInputs(stub):
-    print("1. Download a file.")
-    print("2. Upload a file")
+    print("===================================")
+    print("1. Upload a file")
+    print("2. Download a file.")
     print("3. Delete a file")
+    print("4. Check if a file present")
+    print("===================================")
     option = input("Please choose an option.")
 
     if(option=='1'):
-        downloadTheFile(stub)
-    elif(option=='2'):
         uploadTheFileChunks(stub)
+    elif(option=='2'):
+        downloadTheFile(stub)
     elif(option=='3'):
         deleteTheFile(stub)
+    elif(option=='4'):
+        isFilePresent(stub)
 
 def run_client(serverAddress):
     with grpc.insecure_channel(serverAddress) as channel:
@@ -102,7 +117,7 @@ def run_client(serverAddress):
         else:
             print("Connected")
         stub = fileService_pb2_grpc.FileserviceStub(channel)
-        print("Stub--->", stub)
+        #print("Stub--->", stub)
         handleUserInputs(stub)
 
 

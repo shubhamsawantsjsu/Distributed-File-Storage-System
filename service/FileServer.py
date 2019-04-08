@@ -360,9 +360,22 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 print("Deleting the metadataEntry from local db :", node)
                 db.deleteEntry(metaDataKey)
             if(db.keyExists(dataChunkKey)):
-                print("Deleting the data chunk from local db:", node)
+                print("Deleting the data chunk from local db: ", node)
 
             return fileService_pb2.ack(success=True, message="Successfully deleted file from the cluster")
+
+    #
+    #   This service gets invoked when user wants to check if the file is present.
+    #
+    def FileSearch(self, request, data):
+        username, filename = request.username, request.filename
+
+        if(self.fileExists(username, filename)==1):
+            return fileService_pb2.ack(success=True, message="File exists in the cluster.")
+        else:
+            return fileService_pb2.ack(success=False, message="File does not exist in the cluster.")
+
+
 
 
 
