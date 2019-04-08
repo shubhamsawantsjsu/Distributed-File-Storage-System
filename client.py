@@ -73,15 +73,24 @@ def uploadTheFileChunks(stub):
     else:
         print("Failed to upload. Message - ", response.message)
 
+def deleteTheFile(stub):
+    userName = input("Enter Username: ")
+    fileName = input("Enter file name: ")
+    response = stub.FileDelete(fileService_pb2.FileInfo(username=userName, filename=fileName))
+    print(response.message)
+
 def handleUserInputs(stub):
     print("1. Download a file.")
     print("2. Upload a file")
+    print("3. Delete a file")
     option = input("Please choose an option.")
 
     if(option=='1'):
         downloadTheFile(stub)
     elif(option=='2'):
         uploadTheFileChunks(stub)
+    elif(option=='3'):
+        deleteTheFile(stub)
 
 def run_client(serverAddress):
     with grpc.insecure_channel(serverAddress) as channel:

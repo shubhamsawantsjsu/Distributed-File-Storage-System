@@ -33,5 +33,8 @@ def parseMetaData(username, filename):
     key = username + "_" + filename
     return ast.literal_eval(r.get(key).decode('utf-8'))
 
+def deleteEntry(key):
+    r.delete(key)
+
 
 

@@ -17,6 +17,7 @@ import threading
 import hashlib
 from ShardingHandler import ShardingHandler
 from DownloadHelper import DownloadHelper
+from DeleteHelper import DeleteHelper
 from lru import LRU
 
 UPLOAD_SHARD_SIZE = 50*1024*1024
@@ -68,7 +69,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             for request in request_iterator:
                 username, filename = request.username, request.filename
                 print("Key is-----------------", username+"_"+filename)
-                if(self.fileExists(username, filename)==0):
+                if(self.fileExists(username, filename)==1):
                     print("sending neg ack")
                     return fileService_pb2.ack(success=False, message="File already exists for this user. Please rename or delete file first.")
                 break
@@ -194,7 +195,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             # If the file is not present in the cache, then fetch it from the individual node.
             else:
                 print("Fetching the metadata")
-                
+
                 # Step 1: get metadata i.e. the location of chunks.
                 metaData = db.parseMetaData(request.username, request.filename)
 
@@ -321,6 +322,54 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         stub = fileService_pb2_grpc.FileserviceStub(channel)
         response = stub.getLeaderInfo(fileService_pb2.ClusterInfo(ip = self.hostname, port= self.serverPort, clusterName="team1"))
         print(response.message)
+
+    #
+    #   This service gets invoked when user deletes a file.
+    #
+    def FileDelete(self, request, data):
+        username = request.username
+        filename = request.filename
+
+        if(int(db.get("primaryStatus"))==1):
+
+            if(self.fileExists(username, filename)==0):
+                print("File does not exist")
+                return fileService_pb2.ack(success=False, message="File does not exist")
+
+            print("Fetching metadata from leader")
+            metadata = db.parseMetaData(request.username, request.filename)
+            print("Successfully retrieved metadata from leader")
+
+            deleteHelper = DeleteHelper(self.hostname, self.serverPort, self.activeNodesChecker)
+            deleteHelper.deleteFileChunksAndMetaFromNodes(username, filename, metadata)
+
+            return fileService_pb2.ack(success=True, message="Successfully deleted file from the cluster")
+
+        else:
+            seqNo = -1
+
+            try:
+                seqNo = request.seqNo
+            except:
+                return fileService_pb2.ack(success=False, message="Internal Error")
+
+            metaDataKey = username+"_"+filename 
+            dataChunkKey = username+"_"+filename+"_"+str(seqNo)
+
+            if(db.keyExists(metaDataKey)==1):
+                print("Deleting the metadataEntry from local db :", node)
+                db.deleteEntry(metaDataKey)
+            if(db.keyExists(dataChunkKey)):
+                print("Deleting the data chunk from local db:", node)
+
+            return fileService_pb2.ack(success=True, message="Successfully deleted file from the cluster")
+
+
+
+
+
+
+
 
 
             
