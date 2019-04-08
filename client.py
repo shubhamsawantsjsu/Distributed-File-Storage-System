@@ -94,7 +94,7 @@ def handleUserInputs(stub):
     print("1. Upload a file")
     print("2. Download a file.")
     print("3. Delete a file")
-    print("4. Check if a file present")
+    print("4. Check if a file is present")
     print("===================================")
     option = input("Please choose an option.")
 
