@@ -126,10 +126,16 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             if(request.replicaNode!=""):
                 print("Sending replication to ", request.replicaNode)
                 replica_channel = active_ip_channel_dict[request.replicaNode]
-                stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
-                response = stub.UploadFile(self.sendDataInStream(dataToBeSaved, username, filename, sequenceNumberOfChunk, ""))
+                t1 = Thread(target=self.replicateChunkData, args=(replica_channel, dataToBeSaved, username, filename, sequenceNumberOfChunk ,))
+                t1.start()
+                # stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
+                # response = stub.UploadFile(self.sendDataInStream(dataToBeSaved, username, filename, sequenceNumberOfChunk, ""))
 
             return fileService_pb2.ack(success=True, message="Saved")
+
+    def replicateChunkData(self, replica_channel, dataToBeSaved, username, filename, sequenceNumberOfChunk):
+        stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
+        response = stub.UploadFile(self.sendDataInStream(dataToBeSaved, username, filename, sequenceNumberOfChunk, ""))
 
     # This helper method is responsible for sending the data to destination node through gRPC stream.
     def sendDataToDestination(self, currDataBytes, node, nodeReplica, username, filename, seqNo, channel):
