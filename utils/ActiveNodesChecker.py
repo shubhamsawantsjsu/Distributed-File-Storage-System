@@ -28,7 +28,7 @@ class ActiveNodesChecker():
         db.setData("ip_addresses", self.getStringFromIPAddressesList(ip_addresses))
 
         while True:
-            time.sleep(3)
+            time.sleep(0.5)
             ip_addresses=[]
 
             try:

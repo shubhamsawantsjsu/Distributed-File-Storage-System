@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package fileservice;
+
 service Fileservice {
 	
 	rpc UploadFile (stream FileData) returns (ack);

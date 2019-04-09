@@ -357,10 +357,11 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             dataChunkKey = username+"_"+filename+"_"+str(seqNo)
 
             if(db.keyExists(metaDataKey)==1):
-                print("Deleting the metadataEntry from local db :", node)
+                print("FileDelete: Deleting the metadataEntry from local db :")
                 db.deleteEntry(metaDataKey)
             if(db.keyExists(dataChunkKey)):
-                print("Deleting the data chunk from local db: ", node)
+                print("FileDelete: Deleting the data chunk from local db: ")
+                db.deleteEntry(dataChunkKey)
 
             return fileService_pb2.ack(success=True, message="Successfully deleted file from the cluster")
 

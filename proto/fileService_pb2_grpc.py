@@ -15,52 +15,52 @@ class FileserviceStub(object):
       channel: A grpc.Channel.
     """
     self.UploadFile = channel.stream_unary(
-        '/Fileservice/UploadFile',
+        '/fileservice.Fileservice/UploadFile',
         request_serializer=proto_dot_fileService__pb2.FileData.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.DownloadFile = channel.unary_stream(
-        '/Fileservice/DownloadFile',
+        '/fileservice.Fileservice/DownloadFile',
         request_serializer=proto_dot_fileService__pb2.FileInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.FileData.FromString,
         )
     self.FileSearch = channel.unary_unary(
-        '/Fileservice/FileSearch',
+        '/fileservice.Fileservice/FileSearch',
         request_serializer=proto_dot_fileService__pb2.FileInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.ReplicateFile = channel.stream_unary(
-        '/Fileservice/ReplicateFile',
+        '/fileservice.Fileservice/ReplicateFile',
         request_serializer=proto_dot_fileService__pb2.FileData.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.FileList = channel.unary_unary(
-        '/Fileservice/FileList',
+        '/fileservice.Fileservice/FileList',
         request_serializer=proto_dot_fileService__pb2.UserInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.FileListResponse.FromString,
         )
     self.FileDelete = channel.unary_unary(
-        '/Fileservice/FileDelete',
+        '/fileservice.Fileservice/FileDelete',
         request_serializer=proto_dot_fileService__pb2.FileInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.UpdateFile = channel.stream_unary(
-        '/Fileservice/UpdateFile',
+        '/fileservice.Fileservice/UpdateFile',
         request_serializer=proto_dot_fileService__pb2.FileData.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.getClusterStats = channel.unary_unary(
-        '/Fileservice/getClusterStats',
+        '/fileservice.Fileservice/getClusterStats',
         request_serializer=proto_dot_fileService__pb2.Empty.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ClusterStats.FromString,
         )
     self.getLeaderInfo = channel.unary_unary(
-        '/Fileservice/getLeaderInfo',
+        '/fileservice.Fileservice/getLeaderInfo',
         request_serializer=proto_dot_fileService__pb2.ClusterInfo.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
     self.MetaDataInfo = channel.unary_unary(
-        '/Fileservice/MetaDataInfo',
+        '/fileservice.Fileservice/MetaDataInfo',
         request_serializer=proto_dot_fileService__pb2.MetaData.SerializeToString,
         response_deserializer=proto_dot_fileService__pb2.ack.FromString,
         )
@@ -195,5 +195,5 @@ def add_FileserviceServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'Fileservice', rpc_method_handlers)
+      'fileservice.Fileservice', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
