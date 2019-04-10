@@ -34,7 +34,7 @@ class ShardingHandler():
             if(self.isChannelAlive(channel)):
                 stub = heartbeat_pb2_grpc.HearBeatStub(channel)
                 stats = stub.isAlive(heartbeat_pb2.NodeInfo(ip="", port=""))
-                total = 300.00 - (float(stats.cpu_usage) + float(stats.disk_space) + float(stats.used_mem))
+                total = float(stats.cpu_usage) + float(stats.disk_space) + float(stats.used_mem)
                 if ((total/3)<minVal):
                    minVal2 = minVal
                    minVal = total/3

@@ -42,10 +42,7 @@ class ActiveNodesChecker():
 
             # If there is any addition or deletion of node then create a new channel for that and update {channel, ip} map.
             if(ip_addresses != ip_addresses_old):
-                print("Current", ip_addresses)
-                print("Old", ip_addresses_old)
                 self.createChannelListForAvailableIPs(ip_addresses)
-                print("Came here")
 
             # Update the active {IP, channel} map
             self.heartBeatChecker()

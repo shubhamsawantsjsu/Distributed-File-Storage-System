@@ -44,7 +44,6 @@ def getFileChunks():
             yield fileService_pb2.FileData(username=username, filename=fileName, data=chunk, seqNo=1)
     print("Time for upload= ", time.time()-sTime)
 
-
 def downloadTheFile(stub):
     userName = input("Enter Username: ")
     fileName = input("Enter file name: ")
@@ -66,8 +65,6 @@ def downloadTheFile(stub):
 
 
 def uploadTheFileChunks(stub):
-    #fileData = getFileData()
-    
     response = stub.UploadFile(getFileChunks())
     if(response.success): print("File successfully Uploaded")
     else:
@@ -89,12 +86,14 @@ def isFilePresent(stub):
     else:
         print(response.message)
 
+
 def handleUserInputs(stub):
     print("===================================")
     print("1. Upload a file")
     print("2. Download a file.")
     print("3. Delete a file")
     print("4. Check if a file is present")
+    print("5. Send a file 100 times")
     print("===================================")
     option = input("Please choose an option.")
 
@@ -122,4 +121,4 @@ def run_client(serverAddress):
 
 
 if __name__ == '__main__':
-    run_client('localhost:9000')
+    run_client('192.168.0.9:9000')
