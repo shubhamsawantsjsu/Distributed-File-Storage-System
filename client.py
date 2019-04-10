@@ -16,7 +16,6 @@ import threading
 import os
 
 def getFileData():
-    #fileName = 'fileToBeUploaded.img'
     fileName = input("Enter filename:")
     outfile = os.path.join('files', fileName)
     file_data = open(outfile, 'rb').read()
@@ -100,12 +99,25 @@ def sendFileMultipleTimes(stub):
     fileName = input("Enter file name: ")
     numberOfTimes = input("How many times you want to send this file?")
 
-    for(i in range(1, numberOfTimes+1)):
+    for i in range(1, numberOfTimes+1):
         response = stub.UploadFile(sendFileInChunks(userName, fileName, i))
         if(response.success): 
             print("File successfully Uploaded for sequence : ", str(i))
         else:
             print("Failed to upload for sequence : ", str(i))
+
+def updateFile(stub):
+    response = stub.UpdateFile(getFileChunks())
+    if(response.success): 
+            print("File successfully updated")
+    else:
+        print("Failed to update the file")
+
+def getListOfAllTheFilesForTheUser(stub):
+    userName = input("Enter Username: ")
+    FileListResponse = stub.FileList(fileService_pb2.UserInfo(username=userName))
+    print(FileListResponse.Filenames)
+
 
 def handleUserInputs(stub):
     print("===================================")
@@ -113,7 +125,9 @@ def handleUserInputs(stub):
     print("2. Download a file.")
     print("3. Delete a file")
     print("4. Check if a file is present")
-    print("5. Send a file 100 times")
+    print("5. Update a file.")
+    print("6. Get a list of all the files for an user")
+    print("7. Send a file 100 times")
     print("===================================")
     option = input("Please choose an option.")
 
@@ -126,7 +140,11 @@ def handleUserInputs(stub):
     elif(option=='4'):
         isFilePresent(stub)
     elif(option=='5'):
-        sendFileMultipleTimes(stub):
+        updateFile(stub)
+    elif(option=='6'):
+        getListOfAllTheFilesForTheUser(stub)
+    elif(option=='7'):
+        sendFileMultipleTimes(stub)
 
 def run_client(serverAddress):
     with grpc.insecure_channel(serverAddress) as channel:
@@ -134,7 +152,7 @@ def run_client(serverAddress):
             grpc.channel_ready_future(channel).result(timeout=1)
         except grpc.FutureTimeoutError:
             print("Connection timeout. Unable to connect to port ")
-            exit()
+            #exit()
         else:
             print("Connected")
         stub = fileService_pb2_grpc.FileserviceStub(channel)
