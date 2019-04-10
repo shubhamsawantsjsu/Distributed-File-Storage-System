@@ -107,13 +107,28 @@ def sendFileMultipleTimes(stub):
         else:
             print("Failed to upload for sequence : ", str(i))
 
+def updateFile(stub):
+    response = stub.UpdateFile(getFileChunks())
+    if(response.success): 
+            print("File successfully updated")
+        else:
+            print("Failed to update the file")
+
+def getListOfAllTheFilesForTheUser(stub):
+    userName = input("Enter Username: ")
+    FileListResponse = stub.FileList(fileService_pb2.UserInfo(username=userName))
+    print(FileListResponse.Filenames)
+
+
 def handleUserInputs(stub):
     print("===================================")
     print("1. Upload a file")
     print("2. Download a file.")
     print("3. Delete a file")
     print("4. Check if a file is present")
-    print("5. Send a file 100 times")
+    print("5. Update a file.")
+    print("6. Get a list of all the files for an user")
+    print("7. Send a file 100 times")
     print("===================================")
     option = input("Please choose an option.")
 
@@ -126,6 +141,10 @@ def handleUserInputs(stub):
     elif(option=='4'):
         isFilePresent(stub)
     elif(option=='5'):
+        updateFile(stub)
+    elif(option=='6'):
+        getListOfAllTheFilesForTheUser(stub)
+    elif(option=='7'):
         sendFileMultipleTimes(stub):
 
 def run_client(serverAddress):

@@ -267,9 +267,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
         uniqueFileName = username + "_" + filename
         for ip, channel in active_ip_channel_dict.items():
             if(self.isChannelAlive(channel)):
-                print("Active IP", ip)
                 stub = fileService_pb2_grpc.FileserviceStub(channel)
-                print("STUB->", stub)
                 response = stub.MetaDataInfo(fileService_pb2.MetaData(filename=uniqueFileName, seqValues=str(metadata).encode('utf-8')))
                 print(response.message)
 
@@ -382,6 +380,55 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             return fileService_pb2.ack(success=True, message="File exists in the cluster.")
         else:
             return fileService_pb2.ack(success=False, message="File does not exist in the cluster.")
+
+    #
+    #   This service gets invoked when user wants to update a file.
+    #
+    def UpdateFile(self, request_iterator, context):
+        
+        username, filename = "", ""
+        fileData = bytes("",'utf-8')
+
+        for request in request_iterator:
+            fileData+=request.data
+            username, filename = request.username, request.filename
+
+        def getFileChunks(fileData):
+            # Maximum chunk size that can be sent
+            CHUNK_SIZE=4000000
+
+            outfile = os.path.join('files', fileName)
+            
+            sTime=time.time()
+
+            while True:
+                chunk = fileData.read(CHUNK_SIZE)
+                if not chunk: break
+
+                yield fileService_pb2.FileData(username=username, filename=fileName, data=chunk, seqNo=1)
+            print("Time for upload= ", time.time()-sTime)
+
+        if(int(db.get("primaryStatus"))==1):
+            channel = grpc.insecure_channel('{}'.format(self.serverAddress))
+            stub = fileService_pb2_grpc.FileserviceStub(channel)
+
+            response1 = stub.FileDelete(fileService_pb2.FileInfo(username=userName, filename=fileName))
+
+            if(response1.success):
+                response2 = stub.UploadFile(getFileChunks(fileData))
+                if(response2.success):
+                    return fileService_pb2.ack(success=True, message="File suceessfully updated.")
+                else:
+                    return fileService_pb2.ack(success=False, message="Internal error.")
+            else:
+                return fileService_pb2.ack(success=False, message="Internal error.")
+
+
+
+
+
+            
+
 
 
 
