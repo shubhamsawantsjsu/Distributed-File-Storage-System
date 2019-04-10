@@ -27,11 +27,9 @@ def getFileChunks():
      # Maximum chunk size that can be sent
     CHUNK_SIZE=4000000
 
-    # Location of source image
     username = input("Enter Username: ")
     fileName = input("Enter filename: ")
 
-    # This file is for dev purposes. Each line is one piece of the message being sent individually
     outfile = os.path.join('files', fileName)
     
     sTime=time.time()
@@ -50,7 +48,6 @@ def downloadTheFile(stub):
     data = bytes("",'utf-8')
     sTime=time.time()
     responses = stub.DownloadFile(fileService_pb2.FileInfo(username=userName, filename=fileName))
-    #print(responses)
     for response in responses:
         fileName = response.filename
         data += response.data
@@ -86,6 +83,29 @@ def isFilePresent(stub):
     else:
         print(response.message)
 
+def sendFileInChunks(username, filename, i):
+     # Maximum chunk size that can be sent
+    CHUNK_SIZE=4000000
+
+    outfile = os.path.join('files', fileName)
+    
+    with open(outfile, 'rb') as infile:
+        while True:
+            chunk = infile.read(CHUNK_SIZE)
+            if not chunk: break
+            yield fileService_pb2.FileData(username=username+"_"+str(i), filename=fileName, data=chunk, seqNo=1)
+
+def sendFileMultipleTimes(stub):
+    userName = input("Enter Username: ")
+    fileName = input("Enter file name: ")
+    numberOfTimes = input("How many times you want to send this file?")
+
+    for(i in range(1, numberOfTimes+1)):
+        response = stub.UploadFile(sendFileInChunks(userName, fileName, i))
+        if(response.success): 
+            print("File successfully Uploaded for sequence : ", str(i))
+        else:
+            print("Failed to upload for sequence : ", str(i))
 
 def handleUserInputs(stub):
     print("===================================")
@@ -105,6 +125,8 @@ def handleUserInputs(stub):
         deleteTheFile(stub)
     elif(option=='4'):
         isFilePresent(stub)
+    elif(option=='5'):
+        sendFileMultipleTimes(stub):
 
 def run_client(serverAddress):
     with grpc.insecure_channel(serverAddress) as channel:
@@ -116,7 +138,6 @@ def run_client(serverAddress):
         else:
             print("Connected")
         stub = fileService_pb2_grpc.FileserviceStub(channel)
-        #print("Stub--->", stub)
         handleUserInputs(stub)
 
 

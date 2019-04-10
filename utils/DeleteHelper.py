@@ -25,7 +25,7 @@ class DeleteHelper():
     # This method is responsible for deleting dataChunks and metadata from all the nodes.
     def deleteFileChunksAndMetaFromNodes(self, username, filename, metaData):
 
-        # Start separate threads where each thread will go to the node and delete the file chunk.
+        # Define a threadpool and start separate threads where each thread will go to the node and delete the file chunk.
         with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor:
             list_of_executors = {executor.submit(self.deleteDataAndMetaFromIndividualChunk, metas, username, filename): metas for metas in metaData}
             for future in concurrent.futures.as_completed(list_of_executors):

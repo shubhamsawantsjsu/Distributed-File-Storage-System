@@ -30,7 +30,7 @@ class DownloadHelper():
     # This method stitches back the data and sends to UploadFile service. 
     def getDataFromNodes(self, username, filename, metaData):
         
-        # Start separate threads where each thread will get data from a particular node and will update the 'seqDataMap'.
+        # Define a threadpool and start separate threads where each thread will get data from a particular node and will update the 'seqDataMap'.
         with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor:
             list_of_executors = {executor.submit(self.getDataFromIndividualNode, metas, username, filename): metas for metas in metaData}
             for future in concurrent.futures.as_completed(list_of_executors):
