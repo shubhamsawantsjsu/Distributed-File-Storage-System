@@ -16,7 +16,6 @@ import threading
 import os
 
 def getFileData():
-    #fileName = 'fileToBeUploaded.img'
     fileName = input("Enter filename:")
     outfile = os.path.join('files', fileName)
     file_data = open(outfile, 'rb').read()
@@ -100,7 +99,7 @@ def sendFileMultipleTimes(stub):
     fileName = input("Enter file name: ")
     numberOfTimes = input("How many times you want to send this file?")
 
-    for(i in range(1, numberOfTimes+1)):
+    for i in range(1, numberOfTimes+1):
         response = stub.UploadFile(sendFileInChunks(userName, fileName, i))
         if(response.success): 
             print("File successfully Uploaded for sequence : ", str(i))
@@ -111,8 +110,8 @@ def updateFile(stub):
     response = stub.UpdateFile(getFileChunks())
     if(response.success): 
             print("File successfully updated")
-        else:
-            print("Failed to update the file")
+    else:
+        print("Failed to update the file")
 
 def getListOfAllTheFilesForTheUser(stub):
     userName = input("Enter Username: ")
@@ -145,7 +144,7 @@ def handleUserInputs(stub):
     elif(option=='6'):
         getListOfAllTheFilesForTheUser(stub)
     elif(option=='7'):
-        sendFileMultipleTimes(stub):
+        sendFileMultipleTimes(stub)
 
 def run_client(serverAddress):
     with grpc.insecure_channel(serverAddress) as channel:
@@ -153,7 +152,7 @@ def run_client(serverAddress):
             grpc.channel_ready_future(channel).result(timeout=1)
         except grpc.FutureTimeoutError:
             print("Connection timeout. Unable to connect to port ")
-            exit()
+            #exit()
         else:
             print("Connected")
         stub = fileService_pb2_grpc.FileserviceStub(channel)
