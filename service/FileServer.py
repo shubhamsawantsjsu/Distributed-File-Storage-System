@@ -83,7 +83,7 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
             for request in request_iterator:
 
                 if((currDataSize + sys.getsizeof(request.data)) > UPLOAD_SHARD_SIZE):
-                    self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
+                    response = self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
                     metaData.append([node, seqNo, node_replica])
                     currDataBytes = request.data
                     currDataSize = sys.getsizeof(request.data)
@@ -94,12 +94,14 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                     currDataBytes+=request.data
 
             if(currDataSize>0):
-                self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
+                response = self.sendDataToDestination(currDataBytes, node, node_replica, username, filename, seqNo, active_ip_channel_dict[node])
                 metaData.append([node, seqNo, node_replica])
 
             # Step 4: 
             # Save the metadata on the primary node after the completion of sharding.
-            db.saveMetaData(username, filename, metaData)
+            if(response.success):
+                db.saveMetaData(username, filename, metaData)
+                db.saveUserFile(username, filename)
 
             # Step 5:
             # Make a gRPC call to replicate the matadata on all the other nodes.
@@ -149,11 +151,13 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 replica_channel = active_ip_channel_dict[nodeReplica]
                 stub = fileService_pb2_grpc.FileserviceStub(replica_channel)
                 response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo, ""))
+                return response
         else:
             print("Sending the UPLOAD_SHARD_SIZE to node :", node)
             stub = fileService_pb2_grpc.FileserviceStub(channel)
             response = stub.UploadFile(self.sendDataInStream(currDataBytes, username, filename, seqNo, nodeReplica))
             print("Response from uploadFile: ", response.message)
+            return response
 
     # This helper method actually makes chunks of less than 4MB and streams them through gRPC.
     # 4 MB is the max data packet size in gRPC while sending. That's why it is necessary. 
@@ -241,11 +245,10 @@ class FileServer(fileService_pb2_grpc.FileserviceServicer):
                 yield fileService_pb2.FileData(username = request.username, filename = request.filename, data=chunk, seqNo = request.seqNo)
 
     # This service is responsible fetching all the files.
-    def ListFiles(self, request, context):
-        print("List Files Called")
-
-        #Get files in DB and return file names
-        return fileService_pb2.FileList(lstFileNames="FILE-LIST")
+    def FileList(self, request, context):
+        print("File List Called")
+        userFiles = db.getUserFiles(request.username)
+        return fileService_pb2.FileListResponse(Filenames=str(userFiles))
     
     # This helper method checks whether the file is present in db or not.
     def fileExists(self, username, filename):
