@@ -14,6 +14,7 @@ The system supports some important design aspects such as -
 - Efficient Searching
 <br>
 The following user services are currently supported (with an option to modularly add new services at any time):
+<br>
 - File Upload (supports any file type - pdf, img, avi, txt, mp4, xml, json, m4v, etc.)
 - File Download
 - File Search
@@ -25,8 +26,8 @@ This system allows many clients to have access to data and supports operations (
 
 ### Architecture Diagram
 
-* [Link to Architecture Diagram](images/ArchitectureDiagram.png?raw=true "ArchDiag")
+![Link to Architecture Diagram](images/ArchitectureDiagram.png)
 
 ### Technology Stack
 
-* [Link to Technology Stack Diagram](images/TechStack.png?raw=true "TechStack")
+![Link to Technology Stack Diagram](images/TechStack.png)
