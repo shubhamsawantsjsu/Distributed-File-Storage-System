@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package fileservice;
+
+service Fileservice {
+	
+	rpc UploadFile (stream FileData) returns (ack);
+	rpc DownloadFile (FileInfo) returns (stream FileData);
+	rpc FileSearch (FileInfo) returns (ack);
+	rpc ReplicateFile (stream FileData) returns (ack);
+	rpc FileList (UserInfo) returns (FileListResponse);
+	rpc FileDelete (FileInfo) returns (ack);
+	rpc UpdateFile (stream FileData) returns (ack);
+	rpc getClusterStats (Empty) returns (ClusterStats);
+  	rpc getLeaderInfo (ClusterInfo) returns (ack);
+}
+
+message FileData {
+	string username = 1;
+	string filename =2;
+	bytes data =3;
+}
+
+message ack {
+	bool success =1;
+	string message = 2;
+}
+
+message UserInfo {
+	string username=1;
+}
+
+message FileInfo {
+	string username = 1;
+	string filename = 2;
+}
+
+message FileListResponse {
+	string Filenames =1;
+}
+
+// The request message containing ip address and leader status
+message ClusterInfo {
+  string ip = 1;
+  string port = 2;
+  string clusterName = 3;
+}
+
+// The response message containing the status of the server
+message ClusterStats {  
+  string cpu_usage = 1;
+  string disk_space = 2; 
+  string used_mem = 3;
+}
+
+message Empty {}
