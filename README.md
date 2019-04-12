@@ -38,3 +38,29 @@ This system allows many clients to have access to data and supports operations (
 ![Link to Technology Stack Diagram](images/TechStack.png)
 
 ****************************************************************************************************************
+
+### Usage
+- install all depenedencies as mentioned in requirements.txt
+- Check config.yaml to configure the server IPs and other parameters. 
+- Update iptable.txt to incude all the IPs in your cluster (for each individual cluster)
+
+#### Starting supernode
+```
+python3 supernode.py
+```
+
+#### Strating cluster nodes
+```
+python3 server.py four
+```
+```
+python3 server.py five
+```
+```
+python3 server.py six
+```
+
+#### Starting client
+```
+python3 client.py
+```
