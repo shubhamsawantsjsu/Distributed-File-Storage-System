@@ -23,10 +23,18 @@ The system supports some important design aspects such as -
 
 This system allows many clients to have access to data and supports operations (create, delete, modify, read, write) on that data. Each data file is partitioned into several parts called chunks. Each chunk is stored on different remote machines, facilitating the parallel execution of applications.
 
+****************************************************************************************************************
+
+
+
 ### Architecture Diagram
 
 ![Link to Architecture Diagram](images/ArchitectureDiagram.png)
 
+****************************************************************************************************************
+
 ### Technology Stack
 
 ![Link to Technology Stack Diagram](images/TechStack.png)
+
+****************************************************************************************************************
